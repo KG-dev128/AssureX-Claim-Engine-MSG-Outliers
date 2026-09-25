@@ -1,0 +1,254 @@
+/* assets/css/style.css */
+body {
+    background-color: var(--bg-off-white);
+    color: var(--text-dark);
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Cards & Containers */
+.light-card {
+    background: var(--card-bg-white);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: var(--transition);
+}
+
+/* Typography & Colors */
+.text-olive { color: var(--primary-olive); }
+.text-sage { color: var(--accent-sage); }
+.text-gold { color: var(--accent-gold); }
+.text-dark { color: var(--text-dark); }
+.text-muted { color: var(--text-muted) !important; }
+.bg-cream { background-color: var(--accent-warm-cream); }
+.bg-olive { background-color: var(--primary-olive); color: #fff; }
+
+/* Buttons */
+.btn-olive {
+    background-color: var(--primary-olive);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+.btn-olive:hover {
+    background-color: var(--primary-olive-dark);
+    color: #ffffff;
+    box-shadow: var(--shadow-md);
+}
+.btn-outline-olive {
+    background-color: transparent;
+    color: var(--primary-olive);
+    border: 2px solid var(--primary-olive);
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+.btn-outline-olive:hover {
+    background-color: var(--primary-olive);
+    color: #ffffff;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--card-bg-white);
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--primary-olive) !important;
+}
+.nav-link {
+    color: var(--text-dark) !important;
+    font-weight: 500;
+    transition: var(--transition);
+}
+.nav-link:hover {
+    color: var(--accent-sage) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 120px 0 80px;
+    background: linear-gradient(180deg, var(--accent-warm-cream) 0%, var(--bg-off-white) 100%);
+}
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-dark);
+}
+
+/* Product Cards */
+.product-card {
+    text-align: center;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--card-bg-white);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    transition: var(--transition);
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-sage);
+    box-shadow: var(--shadow-lg);
+}
+.product-icon {
+    font-size: 2.5rem;
+    color: var(--primary-olive);
+    margin-bottom: 16px;
+}
+
+/* Feature List */
+.feature-list li {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+.feature-list li i {
+    color: var(--accent-sage);
+    margin-right: 10px;
+}
+
+/* Metrics & Testimonials */
+.metric-card h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary-olive);
+}
+.testimonial-card {
+    border-radius: var(--radius-md);
+    background: var(--card-bg-white);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-olive-dark);
+    color: #fff;
+    padding: 60px 0 20px;
+}
+footer h5 {
+    color: var(--accent-gold);
+    margin-bottom: 20px;
+}
+footer a {
+    color: #e2e8f0;
+    text-decoration: none;
+    transition: var(--transition);
+}
+footer a:hover {
+    color: var(--accent-gold);
+}
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+footer ul li {
+    margin-bottom: 10px;
+}
+
+/* Wizard Steps */
+.step-container {
+    display: none;
+}
+.step-container.active {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Capture & Upload */
+.capture-box {
+    border: 2px dashed var(--accent-sage);
+    border-radius: var(--radius-md);
+    padding: 30px;
+    text-align: center;
+    transition: var(--transition);
+    background: var(--bg-light-alt);
+}
+.capture-box:hover {
+    border-color: var(--primary-olive);
+    background: var(--accent-warm-cream);
+}
+#camera-preview {
+    width: 100%;
+    max-width: 400px;
+    border-radius: var(--radius-md);
+    display: none;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: var(--card-bg-white);
+    border: 1px solid var(--border-light);
+    color: var(--text-dark);
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-sage);
+    box-shadow: 0 0 0 0.25rem rgba(122, 143, 120, 0.25);
+}
+
+/* Loading Overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(252, 251, 247, 0.95);
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+.spinner-olive {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-top-color: var(--primary-olive);
+    border-bottom-color: var(--accent-sage);
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+.progress-bar-container {
+    width: 300px;
+    height: 8px;
+    background: var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+.progress-bar-fill {
+    height: 100%;
+    background: var(--primary-olive);
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* Badges */
+.badge-valid { background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 20px; font-weight: 600; display: inline-block; }
+.badge-invalid { background: #fee2e2; color: #991b1b; padding: 6px 12px; border-radius: 20px; font-weight: 600; display: inline-block; }
+.badge-review { background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 20px; font-weight: 600; display: inline-block; }
+
+.auth-card {
+    max-width: 500px;
+    margin: 100px auto 60px;
+}
