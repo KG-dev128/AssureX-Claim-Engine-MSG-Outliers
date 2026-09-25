@@ -1,0 +1,36 @@
+<!-- navbar.html -->
+<nav class="navbar navbar-expand-lg fixed-top py-3 bg-white border-bottom shadow-sm">
+    <div class="container">
+        <a class="navbar-brand text-olive fw-bold" href="index.html">
+            <i class="fa-solid fa-shield-halved me-2"></i>ClaimSure_AI
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link text-dark fw-bold" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link text-dark fw-bold" href="user-profile.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link text-dark fw-bold" href="service-center-dashboard.html">Service Center</a></li>
+                <li class="nav-item"><a class="nav-link text-dark fw-bold" href="contact.html">Contact</a></li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <!-- File a Claim Primary CTA -->
+                <a href="claim.html" class="btn btn-olive btn-sm me-3 fw-bold shadow-sm">File a Claim</a>
+                
+                <!-- Profile Dropdown (Logged In State) -->
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://ui-avatars.com/api/?name=User&background=3b4a3a&color=fff" alt="User Avatar" width="36" height="36" class="rounded-circle shadow-sm border">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-light mt-2 rounded" aria-labelledby="dropdownUser">
+                        <li><a class="dropdown-item fw-bold text-dark py-2" href="user-profile.html"><i class="fa-solid fa-user-circle me-2 text-olive"></i>My Profile & Claim History</a></li>
+                        <li><a class="dropdown-item fw-bold text-dark py-2" href="service-center-dashboard.html"><i class="fa-solid fa-wrench me-2 text-olive"></i>Service Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item fw-bold text-danger py-2" href="login.html"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

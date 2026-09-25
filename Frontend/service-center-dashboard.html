@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssureX Service Ops — Service Center Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#0f172a',
+                        slate800: '#1e293b',
+                        slate700: '#334155',
+                        slate600: '#475569',
+                        sky: '#38bdf8',
+                        emerald: '#34d399',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body { background-color: #0f172a; }
+
+        /* Glassmorphism base */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+        .glass-light {
+            background: rgba(51, 65, 85, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Neon glow effects */
+        .glow-sky { box-shadow: 0 0 12px rgba(56, 189, 248, 0.25); }
+        .glow-emerald { box-shadow: 0 0 12px rgba(52, 211, 153, 0.25); }
+        .text-glow-sky { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+
+        /* Chip active */
+        .chip-active {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: rgba(56, 189, 248, 0.6);
+            color: #38bdf8;
+        }
+
+        /* Table row hover */
+        .claim-row { transition: background 0.15s ease; }
+        .claim-row:hover { background: rgba(51, 65, 85, 0.5); }
+
+        /* Tab active */
+        .tab-btn.active {
+            border-bottom: 2px solid #38bdf8;
+            color: #38bdf8;
+        }
+
+        /* Modal animation */
+        #overlay { transition: opacity 0.25s ease; }
+        #modal-panel { transition: transform 0.3s cubic-bezier(.175,.885,.32,1.1), opacity 0.25s ease; }
+
+        /* Range badge */
+        .badge-high    { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
+        .badge-medium  { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35); }
+        .badge-low     { background: rgba(52,211,153,0.2); color: #34d399; border: 1px solid rgba(52,211,153,0.35); }
+        .badge-active  { background: rgba(52,211,153,0.2); color: #34d399; border: 1px solid rgba(52,211,153,0.35); }
+        .badge-expired { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
+        .badge-verified   { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.35); }
+        .badge-flagged { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
+
+        .input-dark {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0;
+        }
+        .input-dark:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.15); }
+
+        /* Toggle switch */
+        .toggle-input:checked ~ .toggle-bg { background-color: #34d399; }
+        .toggle-input:checked ~ .toggle-bg .toggle-dot { transform: translateX(1.25rem); }
+    </style>
+</head>
+
+<body class="text-slate-200 font-sans min-h-screen">
+
+<!-- ═══════════════════════════════════════════════════════
+     BACKGROUND GLOW ORBS
+═══════════════════════════════════════════════════════ -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-10" style="background: radial-gradient(circle, #38bdf8, transparent 70%);"></div>
+    <div class="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full opacity-8" style="background: radial-gradient(circle, #34d399, transparent 70%);"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════ -->
+<header class="glass sticky top-0 z-40 border-b border-white/[0.06] px-6 py-4">
+    <div class="max-w-screen-2xl mx-auto flex flex-wrap items-center gap-4">
+
+        <!-- Brand -->
+        <div class="flex items-center gap-3 flex-shrink-0">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center glow-sky" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9);">
+                <i data-lucide="shield-check" class="text-white w-5 h-5"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-none text-white text-glow-sky">AssureX Service Ops</h1>
+                <p class="text-xs text-slate-400 mt-0.5">Service Center Workbench</p>
+            </div>
+        </div>
+
+        <!-- Branch & Tech ID -->
+        <div class="flex items-center gap-3 ml-4">
+            <span class="glass-light rounded-lg px-3 py-1.5 text-xs text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i>
+                SF Repair Hub — Branch 04
+            </span>
+            <span class="glass-light rounded-lg px-3 py-1.5 text-xs font-mono text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="badge" class="w-3.5 h-3.5"></i>
+                TECH-ID: SRV-2290
+            </span>
+        </div>
+
+        <!-- Search -->
+        <div class="ml-auto flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input id="searchInput" type="text" placeholder="Search Claim ID or Serial No..."
+                    class="input-dark rounded-xl pl-9 pr-4 py-2.5 text-sm w-72 transition-all"
+                    oninput="applyFilters()">
+            </div>
+            <button class="flex items-center gap-2 glass-light text-sky-400 border border-sky-400/30 rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-sky-400/10 transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i> New Claim
+            </button>
+        </div>
+    </div>
+</header>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CATEGORY FILTER CHIPS
+═══════════════════════════════════════════════════════ -->
+<div class="sticky top-[73px] z-30 glass border-b border-white/[0.05] px-6 py-3">
+    <div class="max-w-screen-2xl mx-auto flex items-center gap-2 overflow-x-auto pb-1" id="chipBar">
+        <!-- chips injected by JS -->
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     STATS ROW
+═══════════════════════════════════════════════════════ -->
+<div class="max-w-screen-2xl mx-auto px-6 pt-6 pb-4 relative z-10">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="glass rounded-2xl p-4 glow-sky">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Assigned</p>
+            <h3 class="text-3xl font-bold text-white mt-1" id="statTotal">—</h3>
+        </div>
+        <div class="glass rounded-2xl p-4">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">High Priority</p>
+            <h3 class="text-3xl font-bold text-red-400 mt-1" id="statHigh">—</h3>
+        </div>
+        <div class="glass rounded-2xl p-4">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">In-Warranty</p>
+            <h3 class="text-3xl font-bold text-emerald-400 mt-1" id="statWarranty">—</h3>
+        </div>
+        <div class="glass rounded-2xl p-4">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Flagged / Review</p>
+            <h3 class="text-3xl font-bold text-yellow-400 mt-1" id="statFlagged">—</h3>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     MASTER CLAIMS TABLE
+═══════════════════════════════════════════════════════ -->
+<main class="max-w-screen-2xl mx-auto px-6 pb-16 relative z-10">
+    <div class="glass rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-xs text-slate-400 font-bold uppercase tracking-wider border-b border-white/[0.07]" style="background: rgba(15,23,42,0.5);">
+                        <th class="px-5 py-4 text-left whitespace-nowrap">Claim ID</th>
+                        <th class="px-5 py-4 text-left whitespace-nowrap">Assigned / Priority</th>
+                        <th class="px-5 py-4 text-left whitespace-nowrap">Customer</th>
+                        <th class="px-5 py-4 text-left whitespace-nowrap">Product & Warranty</th>
+                        <th class="px-5 py-4 text-left max-w-[220px]">Fault Description</th>
+                        <th class="px-5 py-4 text-left whitespace-nowrap">Auth Check</th>
+                        <th class="px-5 py-4 text-center whitespace-nowrap">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="claimsTableBody" class="divide-y divide-white/[0.04]">
+                    <!-- Rows injected by JS -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden py-20 text-center">
+            <i data-lucide="inbox" class="w-12 h-12 text-slate-600 mx-auto mb-4"></i>
+            <p class="text-slate-500 font-semibold">No claims match your filter.</p>
+        </div>
+    </div>
+</main>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL OVERLAY
+═══════════════════════════════════════════════════════ -->
+<div id="overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none"
+     style="background: rgba(7,9,14,0.75); backdrop-filter: blur(4px);">
+
+    <div id="modal-panel"
+         class="glass rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl border border-white/10 opacity-0 scale-95"
+         style="transform: scale(0.95);">
+
+        <!-- Modal Header -->
+        <div class="flex items-center gap-4 px-6 py-4 border-b border-white/[0.08] flex-shrink-0">
+            <div>
+                <h2 id="modal-claim-id" class="text-lg font-bold text-white font-mono tracking-wide"></h2>
+                <p id="modal-product-name" class="text-xs text-slate-400 mt-0.5"></p>
+            </div>
+            <div id="modal-priority-badge" class="ml-2"></div>
+            <div id="modal-warranty-badge" class="ml-1"></div>
+            <button onclick="closeModal()" class="ml-auto p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-all flex-shrink-0">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-0 px-6 border-b border-white/[0.08] flex-shrink-0">
+            <button class="tab-btn active px-5 py-3 text-sm font-semibold text-slate-300 hover:text-sky-400 transition-colors" onclick="switchTab('tab-overview', this)">
+                <i data-lucide="file-text" class="inline w-4 h-4 mr-1.5 -mt-0.5"></i> Overview & Evidence
+            </button>
+            <button class="tab-btn px-5 py-3 text-sm font-semibold text-slate-400 hover:text-sky-400 transition-colors border-b-2 border-transparent" onclick="switchTab('tab-diagnostics', this)">
+                <i data-lucide="stethoscope" class="inline w-4 h-4 mr-1.5 -mt-0.5"></i> Diagnostics & History
+            </button>
+            <button class="tab-btn px-5 py-3 text-sm font-semibold text-slate-400 hover:text-sky-400 transition-colors border-b-2 border-transparent" onclick="switchTab('tab-parts', this)">
+                <i data-lucide="calculator" class="inline w-4 h-4 mr-1.5 -mt-0.5"></i> Parts, Cost & Submit
+            </button>
+        </div>
+
+        <!-- Tab Content (scrollable) -->
+        <div class="overflow-y-auto flex-1 px-6 py-5">
+
+            <!-- ─── TAB 1: Overview & Evidence ─── -->
+            <div id="tab-overview" class="tab-content space-y-5">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Customer Details -->
+                    <div class="glass-light rounded-xl p-4">
+                        <h4 class="text-xs font-bold text-sky-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i> Customer Details
+                        </h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Full Name</span><span id="d-cust-name" class="font-semibold text-white"></span></div>
+                            <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Phone</span><span id="d-cust-phone" class="font-mono text-emerald-400"></span></div>
+                            <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Email</span><span id="d-cust-email" class="text-sky-300"></span></div>
+                            <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Address</span><span id="d-cust-addr" class="text-slate-300 leading-snug"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Product & Warranty -->
+                    <div class="glass-light rounded-xl p-4">
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-4 h-4"></i> Product & Warranty Details
+                        </h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex gap-2"><span class="text-slate-400 w-28 flex-shrink-0">Model</span><span id="d-model" class="font-semibold text-white"></span></div>
+                            <div class="flex gap-2 items-center"><span class="text-slate-400 w-28 flex-shrink-0">Serial No.</span>
+                                <span id="d-serial" class="font-mono text-yellow-300 text-xs"></span>
+                                <button class="ml-2 text-xs bg-sky-500/20 border border-sky-500/40 text-sky-400 px-2 py-0.5 rounded-lg hover:bg-sky-500/30 transition">Verify S/N</button>
+                            </div>
+                            <div class="flex gap-2"><span class="text-slate-400 w-28 flex-shrink-0">Purchase Date</span><span id="d-purchase" class="text-slate-300"></span></div>
+                            <div class="flex gap-2 items-center"><span class="text-slate-400 w-28 flex-shrink-0">Warranty</span>
+                                <span id="d-warranty-days" class="text-slate-300"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fault Description -->
+                <div class="glass-light rounded-xl p-4">
+                    <h4 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Full Fault Description
+                    </h4>
+                    <p id="d-fault-full" class="text-sm text-slate-300 leading-relaxed"></p>
+                </div>
+
+                <!-- Evidence Gallery -->
+                <div class="glass-light rounded-xl p-4">
+                    <h4 class="text-xs font-bold text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="images" class="w-4 h-4"></i> Evidence & Documents
+                    </h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="rounded-xl overflow-hidden border border-white/10 group cursor-pointer relative"
+                             style="background: rgba(15,23,42,0.6); aspect-ratio: 4/3;">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                <i data-lucide="file-invoice" class="w-8 h-8 text-sky-400 opacity-70 group-hover:opacity-100 transition"></i>
+                                <span class="text-xs text-slate-300 font-semibold">Invoice Receipt</span>
+                                <span class="text-[9px] font-mono bg-black/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 truncate max-w-[90%]">SHA-256: 8f4e..9b2a</span>
+                            </div>
+                        </div>
+                        <div class="rounded-xl overflow-hidden border border-white/10 group cursor-pointer relative"
+                             style="background: rgba(15,23,42,0.6); aspect-ratio: 4/3;">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                <i data-lucide="id-card" class="w-8 h-8 text-yellow-400 opacity-70 group-hover:opacity-100 transition"></i>
+                                <span class="text-xs text-slate-300 font-semibold">Warranty Card</span>
+                                <span class="text-[9px] font-mono bg-black/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 truncate max-w-[90%]">SHA-256: 3c21..1a7f</span>
+                            </div>
+                        </div>
+                        <div class="rounded-xl overflow-hidden border border-white/10 group cursor-pointer relative"
+                             style="background: rgba(15,23,42,0.6); aspect-ratio: 4/3;">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                <i data-lucide="camera" class="w-8 h-8 text-red-400 opacity-70 group-hover:opacity-100 transition"></i>
+                                <span class="text-xs text-slate-300 font-semibold">Physical Fault Photo</span>
+                                <span class="text-[9px] font-mono bg-black/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 truncate max-w-[90%]">SHA-256: d510..4e6c</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /tab-overview -->
+
+
+            <!-- ─── TAB 2: Diagnostics & History ─── -->
+            <div id="tab-diagnostics" class="tab-content hidden space-y-5">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <!-- Physical Inspection Checkboxes -->
+                    <div class="glass-light rounded-xl p-4">
+                        <h4 class="text-xs font-bold text-sky-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <i data-lucide="clipboard-check" class="w-4 h-4"></i> Physical Inspection
+                        </h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded accent-sky-400">
+                                <span class="text-sm text-slate-300 group-hover:text-white transition">Liquid Damage Detected</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded accent-sky-400" checked>
+                                <span class="text-sm text-slate-300 group-hover:text-white transition">Warranty Seal Intact</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded accent-sky-400">
+                                <span class="text-sm text-slate-300 group-hover:text-white transition">Drop / Impact Damage</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded accent-sky-400">
+                                <span class="text-sm text-slate-300 group-hover:text-white transition">Non-Genuine Parts Present</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Unauthorized Repair Toggle -->
+                    <div class="glass-light rounded-xl p-4">
+                        <h4 class="text-xs font-bold text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <i data-lucide="shield-x" class="w-4 h-4"></i> Unauthorized Repair Assessment
+                        </h4>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-slate-300">Non-approved seal broken or modified?</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only toggle-input" id="unauthorizedToggle">
+                                <div class="toggle-bg w-11 h-6 bg-slate-600 rounded-full transition-colors duration-200 relative">
+                                    <div class="toggle-dot absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">Enabling this flag will mark the claim as <span class="text-red-400 font-semibold">Flagged Unauthorized</span> and may void the in-warranty coverage.</p>
+                    </div>
+                </div>
+
+                <!-- Technician Diagnostic Findings -->
+                <div class="glass-light rounded-xl p-4">
+                    <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="stethoscope" class="w-4 h-4"></i> Technician Diagnostic Findings
+                    </h4>
+                    <textarea rows="4" class="input-dark w-full rounded-xl text-sm p-3 resize-none transition-all"
+                              placeholder="Document your diagnostic observations, error codes, root cause analysis (RCA)..."></textarea>
+                </div>
+
+                <!-- Repair History Table -->
+                <div class="glass-light rounded-xl p-4">
+                    <h4 class="text-xs font-bold text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="history" class="w-4 h-4"></i> Prior Repair History (This Serial No.)
+                    </h4>
+                    <div class="overflow-x-auto rounded-xl border border-white/[0.06]">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="text-slate-400 font-semibold border-b border-white/[0.06]" style="background: rgba(15,23,42,0.5);">
+                                    <th class="px-4 py-3 text-left">Date</th>
+                                    <th class="px-4 py-3 text-left">Claim Ref</th>
+                                    <th class="px-4 py-3 text-left">Repair Description</th>
+                                    <th class="px-4 py-3 text-left">Parts Replaced</th>
+                                    <th class="px-4 py-3 text-left">Outcome</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/[0.04]">
+                                <tr class="text-slate-300">
+                                    <td class="px-4 py-3">May 12, 2026</td>
+                                    <td class="px-4 py-3 font-mono text-sky-400">CLM-7821</td>
+                                    <td class="px-4 py-3">Battery calibration & firmware update</td>
+                                    <td class="px-4 py-3 text-yellow-300">None</td>
+                                    <td class="px-4 py-3"><span class="badge-active text-xs px-2 py-0.5 rounded-md font-semibold">Resolved</span></td>
+                                </tr>
+                                <tr class="text-slate-300">
+                                    <td class="px-4 py-3">Jan 9, 2026</td>
+                                    <td class="px-4 py-3 font-mono text-sky-400">CLM-5244</td>
+                                    <td class="px-4 py-3">Screen replacement (crack)</td>
+                                    <td class="px-4 py-3 text-yellow-300">OLED Panel (PRT-204)</td>
+                                    <td class="px-4 py-3"><span class="badge-active text-xs px-2 py-0.5 rounded-md font-semibold">Resolved</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div><!-- /tab-diagnostics -->
+
+
+            <!-- ─── TAB 3: Parts, Cost & Submission ─── -->
+            <div id="tab-parts" class="tab-content hidden space-y-5">
+
+                <!-- Parts Estimator -->
+                <div class="glass-light rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xs font-bold text-sky-400 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="wrench" class="w-4 h-4"></i> Parts & Repair Cost Estimator
+                        </h4>
+                        <button onclick="addPartRow()" class="text-xs flex items-center gap-1.5 bg-sky-500/20 border border-sky-500/40 text-sky-400 px-3 py-1.5 rounded-lg hover:bg-sky-500/30 transition">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Part
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-white/[0.06]">
+                        <table class="w-full text-xs" id="partsTable">
+                            <thead>
+                                <tr class="text-slate-400 font-semibold border-b border-white/[0.06]" style="background: rgba(15,23,42,0.5);">
+                                    <th class="px-4 py-3 text-left">Part Name</th>
+                                    <th class="px-4 py-3 text-left">SKU / Code</th>
+                                    <th class="px-4 py-3 text-left w-24">Cost ($)</th>
+                                    <th class="px-4 py-3 text-center">Covered?</th>
+                                    <th class="px-4 py-3 text-center w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="partsBody" class="divide-y divide-white/[0.04]">
+                                <tr class="text-slate-300" data-cost="120">
+                                    <td class="px-4 py-3"><input type="text" value="Compressor Relay" class="input-dark rounded-lg px-2 py-1 w-full text-xs"></td>
+                                    <td class="px-4 py-3"><input type="text" value="PRT-102" class="input-dark rounded-lg px-2 py-1 w-full text-xs font-mono"></td>
+                                    <td class="px-4 py-3"><input type="number" value="120" class="input-dark rounded-lg px-2 py-1 w-20 text-xs" oninput="recalcTotal()"></td>
+                                    <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 rounded accent-emerald-400" checked onchange="recalcTotal()"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="removePartRow(this)" class="text-red-400 hover:text-red-300 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="mt-4 flex flex-col items-end gap-1.5 text-sm">
+                        <div class="flex gap-6 text-slate-400">
+                            <span>Subtotal:</span><span id="subtotal" class="font-mono text-white w-20 text-right">$0.00</span>
+                        </div>
+                        <div class="flex gap-6 text-slate-400">
+                            <span>Customer Payable:</span><span id="custPayable" class="font-mono text-red-400 w-20 text-right">$0.00</span>
+                        </div>
+                        <div class="flex gap-6 text-slate-400">
+                            <span>Company Reimbursable:</span><span id="compReimb" class="font-mono text-emerald-400 w-20 text-right">$0.00</span>
+                        </div>
+                        <hr class="border-white/10 w-64 my-1">
+                        <div class="flex gap-6 font-bold text-base">
+                            <span class="text-slate-300">Grand Total:</span><span id="grandTotal" class="font-mono text-white w-20 text-right">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Claim Submission -->
+                <div class="glass-light rounded-xl p-4">
+                    <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Claim Decision & Submission
+                    </h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs text-slate-400 font-semibold mb-1.5 block">Claim Status Decision</label>
+                            <select class="input-dark rounded-xl px-3 py-2.5 text-sm w-full">
+                                <option>Approve In-Warranty Repair</option>
+                                <option>Approve Paid Repair</option>
+                                <option>Reject Claim</option>
+                                <option>Escalate to Admin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-semibold mb-1.5 block">Mandatory Notes / Reason <span class="text-red-400">*</span></label>
+                            <textarea rows="3" class="input-dark w-full rounded-xl text-sm p-3 resize-none"
+                                      placeholder="Provide clear justification for the selected decision..."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-semibold mb-1.5 block">Customer-Facing Message</label>
+                            <input type="text" class="input-dark w-full rounded-xl text-sm px-3 py-2.5"
+                                   placeholder="Short message the customer will see in their portal...">
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <button class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition-all glow-emerald"
+                                    style="background: linear-gradient(135deg, #059669, #34d399);">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Submit Decision
+                            </button>
+                            <button class="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm glass-light text-sky-400 border border-sky-400/30 hover:bg-sky-400/10 transition">
+                                <i data-lucide="download" class="w-4 h-4"></i> Download Job Sheet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /tab-parts -->
+
+        </div><!-- /scrollable tab content -->
+    </div><!-- /modal-panel -->
+</div><!-- /overlay -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════ -->
+<script>
+
+// ── Mock Data ──────────────────────────────────────────────────────────
+const claims = [
+    {
+        id: 'CLM-10045', category: 'Smart Phone', date: 'Sep 25, 2026', priority: 'High',
+        customer: { name: 'Emily Rivera', phone: '+1 (555) 123-4567', email: 'emily.r@example.com', address: '123 Tech Blvd, Apt 4B, San Francisco CA 94105' },
+        product: { name: 'Samsung Galaxy S24 Ultra', model: 'SM-S928B', serial: 'SN-XA902188', purchase: 'Nov 15, 2024', warrantyDays: 51, warrantyStatus: 'ACTIVE' },
+        fault: 'Screen randomly goes blank mid-use. Touchscreen becomes unresponsive after 10–15 minutes. Restarting temporarily resolves the issue but it recurs.',
+        faultShort: 'Screen blanks randomly, touch unresponsive',
+        authorized: 'Verified Authorized',
+    },
+    {
+        id: 'CLM-10046', category: 'Refrigerator', date: 'Sep 24, 2026', priority: 'High',
+        customer: { name: 'Michael Chen', phone: '+1 (555) 987-6543', email: 'mchen@gmail.com', address: '88 Market St, Suite 1100, Chicago IL 60601' },
+        product: { name: 'LG Refrigerator InstaView', model: 'LRMVS3006S', serial: 'LG-REF-44291', purchase: 'Oct 10, 2025', warrantyDays: 350, warrantyStatus: 'ACTIVE' },
+        fault: 'Compressor not running. Refrigerator display is on and shows temperature correctly but interior temperature is rising. Ice maker stopped producing ice.',
+        faultShort: 'Compressor failure, interior warming up',
+        authorized: 'Flagged Unauthorized',
+    },
+    {
+        id: 'CLM-10047', category: 'Television', date: 'Sep 23, 2026', priority: 'Medium',
+        customer: { name: 'Sarah Jenkins', phone: '+1 (555) 246-8101', email: 'sarah.j@outlook.com', address: '500 Oak Ave, Austin TX 78701' },
+        product: { name: 'Sony Bravia X90L 65"', model: 'XR-65X90L', serial: 'SN-TVX900012', purchase: 'Jan 20, 2026', warrantyDays: 117, warrantyStatus: 'ACTIVE' },
+        fault: 'Horizontal green lines appearing on left side of screen during startup. Lines disappear after 30 minutes but sometimes persist for hours.',
+        faultShort: 'Green horizontal lines on screen',
+        authorized: 'Verified Authorized',
+    },
+    {
+        id: 'CLM-10048', category: 'Microwave', date: 'Sep 22, 2026', priority: 'Low',
+        customer: { name: 'Raj Patel', phone: '+1 (555) 369-2580', email: 'rpatel@yahoo.com', address: '22 Garden Lane, Seattle WA 98101' },
+        product: { name: 'IFB Microwave 30SC4', model: 'IFB-30SC4', serial: 'IFB-MW-8841', purchase: 'Mar 15, 2024', warrantyDays: 0, warrantyStatus: 'EXPIRED' },
+        fault: 'Turntable motor stopped rotating. The microwave heats food but the tray does not turn, resulting in uneven heating.',
+        faultShort: 'Turntable motor not working',
+        authorized: 'Verified Authorized',
+    },
+    {
+        id: 'CLM-10049', category: 'Printer', date: 'Sep 21, 2026', priority: 'Medium',
+        customer: { name: 'Laura Kim', phone: '+1 (555) 147-2580', email: 'lkim@techcorp.io', address: '7 Innovation Blvd, San Jose CA 95101' },
+        product: { name: 'HP LaserJet Pro MFP', model: 'MFP-4202dw', serial: 'HP-PRT-110293', purchase: 'Aug 12, 2025', warrantyDays: 290, warrantyStatus: 'ACTIVE' },
+        fault: 'Printer jams on every print job. Paper feeds halfway and gets stuck. Error code 13.20 appearing on display panel.',
+        faultShort: 'Paper jam, error code 13.20',
+        authorized: 'Verified Authorized',
+    },
+    {
+        id: 'CLM-10050', category: 'Washing Machine', date: 'Sep 20, 2026', priority: 'High',
+        customer: { name: 'James Okafor', phone: '+1 (555) 963-7410', email: 'james.o@washpro.com', address: '14 Elm Street, Brooklyn NY 11201' },
+        product: { name: 'Samsung WM Front Loader', model: 'WF50BG8300AV', serial: 'WM-SA-20918', purchase: 'Dec 5, 2025', warrantyDays: 440, warrantyStatus: 'ACTIVE' },
+        fault: 'Drum not spinning during wash cycle. Machine fills with water, agitates briefly, then stops. Error code dC appears on display.',
+        faultShort: 'Drum spin failure, error dC',
+        authorized: 'Flagged Unauthorized',
+    },
+    {
+        id: 'CLM-10051', category: 'Laptop', date: 'Sep 19, 2026', priority: 'Medium',
+        customer: { name: 'Priya Sharma', phone: '+1 (555) 741-8520', email: 'priya.sh@promail.com', address: '301 Maple Dr, Apt 9, Dallas TX 75201' },
+        product: { name: 'Dell XPS 15 9530', model: 'XPS-9530-I7', serial: 'DEL-XPS-99021', purchase: 'Jul 7, 2025', warrantyDays: 285, warrantyStatus: 'ACTIVE' },
+        fault: 'Battery drains from 100% to 0% in under 90 minutes even with light usage. Battery health reads 61% in diagnostics.',
+        faultShort: 'Rapid battery drain, health at 61%',
+        authorized: 'Verified Authorized',
+    },
+    {
+        id: 'CLM-10052', category: 'AC', date: 'Sep 18, 2026', priority: 'High',
+        customer: { name: 'Ahmed Hassan', phone: '+1 (555) 852-9630', email: 'ahassan@desert.ae', address: '99 Cooling Ave, Phoenix AZ 85001' },
+        product: { name: 'Daikin Split AC 1.5T', model: 'FTKF50TV', serial: 'DK-AC-551188', purchase: 'May 1, 2024', warrantyDays: 0, warrantyStatus: 'EXPIRED' },
+        fault: 'AC unit stops cooling after running for 20 minutes. Compressor makes a loud clicking sound and shuts off. Remote control shows E1 error code.',
+        faultShort: 'Cooling stops, E1 error, loud clicking',
+        authorized: 'Verified Authorized',
+    },
+];
+
+// ── State ───────────────────────────────────────────────────────────────
+let activeCategory = 'All Categories';
+let currentClaimIndex = null;
+
+// ── Category Chips ───────────────────────────────────────────────────────
+const categories = ['All Categories','Smart Phone','Refrigerator','Television','Microwave','Printer','Washing Machine','Laptop','AC'];
+
+const categoryIcons = {
+    'All Categories':'layout-grid','Smart Phone':'smartphone','Refrigerator':'thermometer-snowflake',
+    'Television':'tv-2','Microwave':'zap','Printer':'printer','Washing Machine':'wind',
+    'Laptop':'laptop','AC':'air-vent'
+};
+
+function renderChips() {
+    const bar = document.getElementById('chipBar');
+    bar.innerHTML = categories.map(cat => `
+        <button onclick="setCategory('${cat}')"
+            class="chip flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all
+                   ${cat === activeCategory ? 'chip-active' : 'glass-light text-slate-400 border-white/10 hover:border-slate-500 hover:text-slate-200'}"
+            data-cat="${cat}">
+            <i data-lucide="${categoryIcons[cat]}" class="w-3.5 h-3.5"></i>
+            ${cat}
+        </button>
+    `).join('');
+    lucide.createIcons();
+}
+
+function setCategory(cat) {
+    activeCategory = cat;
+    renderChips();
+    applyFilters();
+}
+
+// ── Filter & Render Table ────────────────────────────────────────────────
+function applyFilters() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = claims.filter(c => {
+        const matchCat = activeCategory === 'All Categories' || c.category === activeCategory;
+        const matchSearch = !q || c.id.toLowerCase().includes(q) || c.product.serial.toLowerCase().includes(q);
+        return matchCat && matchSearch;
+    });
+    renderTable(filtered);
+    updateStats(filtered);
+}
+
+function priorityBadge(p) {
+    const cls = p === 'High' ? 'badge-high' : p === 'Medium' ? 'badge-medium' : 'badge-low';
+    return `<span class="${cls} px-2 py-0.5 rounded-md text-xs font-bold">${p}</span>`;
+}
+function warrantyBadge(w) {
+    return `<span class="${w === 'ACTIVE' ? 'badge-active' : 'badge-expired'} px-2 py-0.5 rounded-md text-xs font-bold">${w}</span>`;
+}
+function authBadge(a) {
+    return `<span class="${a === 'Verified Authorized' ? 'badge-verified' : 'badge-flagged'} px-2 py-0.5 rounded-md text-xs font-bold">${a === 'Verified Authorized' ? '✓ Verified' : '⚑ Flagged'}</span>`;
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById('claimsTableBody');
+    const empty = document.getElementById('emptyState');
+    if (data.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+    tbody.innerHTML = data.map((c, i) => {
+        const idx = claims.indexOf(c);
+        return `
+        <tr class="claim-row cursor-default">
+            <td class="px-5 py-4">
+                <span class="font-mono text-sky-400 font-bold text-sm">${c.id}</span>
+            </td>
+            <td class="px-5 py-4">
+                <div class="text-xs text-slate-400 mb-1">${c.date}</div>
+                ${priorityBadge(c.priority)}
+            </td>
+            <td class="px-5 py-4">
+                <div class="font-semibold text-white text-sm">${c.customer.name}</div>
+                <div class="text-xs text-slate-400 font-mono mt-0.5">${c.customer.phone}</div>
+            </td>
+            <td class="px-5 py-4">
+                <div class="text-sm text-white font-semibold mb-1">${c.product.name}</div>
+                ${warrantyBadge(c.product.warrantyStatus)}
+            </td>
+            <td class="px-5 py-4 max-w-[200px]">
+                <p class="text-xs text-slate-400 leading-snug line-clamp-2 truncate" style="max-width:200px;">${c.faultShort}</p>
+            </td>
+            <td class="px-5 py-4">${authBadge(c.authorized)}</td>
+            <td class="px-5 py-4 text-center">
+                <button onclick="openModal(${idx})"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all glow-sky text-navy"
+                    style="background: linear-gradient(135deg, #38bdf8, #0ea5e9);">
+                    <i data-lucide="microscope" class="w-3.5 h-3.5"></i> Inspect & Process
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+    lucide.createIcons();
+}
+
+function updateStats(data) {
+    document.getElementById('statTotal').textContent = data.length;
+    document.getElementById('statHigh').textContent = data.filter(c => c.priority === 'High').length;
+    document.getElementById('statWarranty').textContent = data.filter(c => c.product.warrantyStatus === 'ACTIVE').length;
+    document.getElementById('statFlagged').textContent = data.filter(c => c.authorized === 'Flagged Unauthorized').length;
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────
+function openModal(idx) {
+    const c = claims[idx];
+    currentClaimIndex = idx;
+
+    // Populate header
+    document.getElementById('modal-claim-id').textContent = c.id;
+    document.getElementById('modal-product-name').textContent = `${c.category} — ${c.product.name}`;
+    document.getElementById('modal-priority-badge').innerHTML = priorityBadge(c.priority);
+    document.getElementById('modal-warranty-badge').innerHTML = warrantyBadge(c.product.warrantyStatus);
+
+    // Tab 1 fields
+    document.getElementById('d-cust-name').textContent = c.customer.name;
+    document.getElementById('d-cust-phone').textContent = c.customer.phone;
+    document.getElementById('d-cust-email').textContent = c.customer.email;
+    document.getElementById('d-cust-addr').textContent = c.customer.address;
+    document.getElementById('d-model').textContent = c.product.model;
+    document.getElementById('d-serial').textContent = c.product.serial;
+    document.getElementById('d-purchase').textContent = c.product.purchase;
+    document.getElementById('d-warranty-days').innerHTML = c.product.warrantyDays > 0
+        ? `<span class="text-emerald-400 font-bold">${c.product.warrantyDays} days remaining</span>`
+        : `<span class="text-red-400 font-bold">Expired</span>`;
+    document.getElementById('d-fault-full').textContent = c.fault;
+
+    // Reset tabs to Tab 1
+    switchTab('tab-overview', document.querySelector('.tab-btn'));
+
+    // Show overlay
+    const overlay = document.getElementById('overlay');
+    const panel = document.getElementById('modal-panel');
+    overlay.classList.remove('pointer-events-none');
+    overlay.style.opacity = '1';
+    panel.style.opacity = '1';
+    panel.style.transform = 'scale(1)';
+    document.body.style.overflow = 'hidden';
+
+    recalcTotal();
+    lucide.createIcons();
+}
+
+function closeModal() {
+    const overlay = document.getElementById('overlay');
+    const panel = document.getElementById('modal-panel');
+    overlay.style.opacity = '0';
+    panel.style.opacity = '0';
+    panel.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        overlay.classList.add('pointer-events-none');
+        document.body.style.overflow = '';
+    }, 250);
+}
+
+// Close on backdrop click
+document.getElementById('overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+
+// ── Tab Switching ────────────────────────────────────────────────────────
+function switchTab(targetId, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('text-slate-400');
+        b.style.borderBottomColor = 'transparent';
+    });
+    document.getElementById(targetId).classList.remove('hidden');
+    btn.classList.add('active');
+    btn.classList.remove('text-slate-400');
+    lucide.createIcons();
+}
+
+// ── Parts Table ──────────────────────────────────────────────────────────
+function addPartRow() {
+    const tbody = document.getElementById('partsBody');
+    const row = document.createElement('tr');
+    row.className = 'text-slate-300';
+    row.setAttribute('data-cost', '0');
+    row.innerHTML = `
+        <td class="px-4 py-3"><input type="text" placeholder="Part Name" class="input-dark rounded-lg px-2 py-1 w-full text-xs"></td>
+        <td class="px-4 py-3"><input type="text" placeholder="SKU-XXX" class="input-dark rounded-lg px-2 py-1 w-full text-xs font-mono"></td>
+        <td class="px-4 py-3"><input type="number" value="0" class="input-dark rounded-lg px-2 py-1 w-20 text-xs" oninput="recalcTotal()"></td>
+        <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 rounded accent-emerald-400" onchange="recalcTotal()"></td>
+        <td class="px-4 py-3 text-center"><button onclick="removePartRow(this)" class="text-red-400 hover:text-red-300 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
+    `;
+    tbody.appendChild(row);
+    lucide.createIcons();
+    recalcTotal();
+}
+
+function removePartRow(btn) {
+    btn.closest('tr').remove();
+    recalcTotal();
+}
+
+function recalcTotal() {
+    const rows = document.querySelectorAll('#partsBody tr');
+    let subtotal = 0, reimbursable = 0, payable = 0;
+    rows.forEach(row => {
+        const cost = parseFloat(row.querySelector('input[type=number]')?.value) || 0;
+        const covered = row.querySelector('input[type=checkbox]')?.checked;
+        subtotal += cost;
+        if (covered) reimbursable += cost;
+        else payable += cost;
+    });
+    const fmt = v => `$${v.toFixed(2)}`;
+    document.getElementById('subtotal').textContent = fmt(subtotal);
+    document.getElementById('custPayable').textContent = fmt(payable);
+    document.getElementById('compReimb').textContent = fmt(reimbursable);
+    document.getElementById('grandTotal').textContent = fmt(subtotal);
+}
+
+// ── Initialize ───────────────────────────────────────────────────────────
+renderChips();
+applyFilters();
+recalcTotal();
+lucide.createIcons();
+</script>
+
+</body>
+</html>
