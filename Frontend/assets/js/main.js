@@ -1,117 +1,317 @@
-// assets/js/main.js
+/**
+ * AssureX_AI — main.js
+ * Modular JS: AXI Robot, Demo Toggles, Multi-step Form,
+ * Loading Overlay, OCR Status Carousel, Drag-and-drop
+ */
 
-// Step Navigation
-function nextStep(current, next) {
-    document.getElementById(`step-${current}`).classList.remove('active');
-    document.getElementById(`step-${next}`).classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+// ══════════════════════════════════════════
+// AXI ROBOT — Contextual Tooltip Manager
+// ══════════════════════════════════════════
+const AXI = {
+  contextMessages: {
+    login:    "Fill your correct data to get in for warranty claiming process 🚀",
+    register: "Fill your correct data to get in for warranty claiming process 🚀",
+    claim:    "Double check your receipt numbers for 100% fast verification! ⚡",
+    summary:  "Analyzing raw image data via AI Engine... Almost there! 🤖",
+    default:  "Hey!! Don't take stress... it's not good for health 😊"
+  },
 
-// Camera Engine
-let stream = null;
-const videoElement = document.getElementById('camera-preview');
-const cameraSection = document.getElementById('camera-section');
-let currentCaptureTarget = '';
+  init(page = 'default') {
+    this.page = page;
+    this._renderCompanion();
+    this._renderContextTip(page);
+  },
 
-async function openCamera(target) {
-    currentCaptureTarget = target;
-    cameraSection.style.display = 'block';
-    videoElement.style.display = 'block';
-    
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        videoElement.srcObject = stream;
-    } catch (err) {
-        console.error("Error accessing camera: ", err);
-        alert("Unable to access camera. Please check permissions or use the file upload option.");
-        closeCamera();
+  _renderCompanion() {
+    const el = document.getElementById('axiCompanion');
+    if (!el) return;
+    const bubble = el.querySelector('.axi-speech-bubble');
+    if (bubble) bubble.textContent = this.contextMessages.default;
+  },
+
+  _renderContextTip(page) {
+    const el = document.getElementById('axiContextTip');
+    if (!el) return;
+    const msg = this.contextMessages[page] || this.contextMessages.default;
+    el.textContent = msg;
+    // show tip on load pages that need it
+    if (['login','register','claim','summary'].includes(page)) {
+      el.style.display = 'block';
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => el.style.display = 'none', 500);
+      }, 5000);
+    } else {
+      el.style.display = 'none';
     }
-}
+  }
+};
 
-function closeCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
-    cameraSection.style.display = 'none';
-    videoElement.style.display = 'none';
-}
+// ══════════════════════════════════════════
+// LOADING / OCR OVERLAY
+// ══════════════════════════════════════════
+const OCRLoader = {
+  statusMessages: [
+    "Scanning raw images & extracting OCR metadata...",
+    "Computing SHA-256 document fingerprint hash...",
+    "Running Tesseract OCR text extraction engine...",
+    "Verifying document hash with manufacturer database...",
+    "Cross-referencing serial number & purchase date...",
+    "Finalizing AI confidence score computation..."
+  ],
 
-document.getElementById('capture-btn')?.addEventListener('click', () => {
-    alert(`Photo captured for ${currentCaptureTarget}!`);
-    closeCamera();
-});
+  progressSteps: [10, 25, 42, 60, 80, 100],
 
-// Loading Overlay & Extraction Simulation
-const overlay = document.getElementById('loading-overlay');
-const progressFill = document.getElementById('loading-progress');
-const loadingText = document.getElementById('loading-text');
+  _msgEl: null,
+  _barEl: null,
+  _idx: 0,
+  _timer: null,
 
-const stages = [
-    { text: "Scanning raw image bytes...", progress: 25, delay: 1000 },
-    { text: "Computing SHA-256 digital fingerprint hash...", progress: 50, delay: 1500 },
-    { text: "Running Tesseract OCR text extraction...", progress: 75, delay: 1500 },
-    { text: "Verifying invoice date and serial number match...", progress: 100, delay: 1500 }
-];
-
-function processExtraction() {
-    // Hide Step 2, show overlay
-    document.getElementById('step-2').classList.remove('active');
+  show(onComplete) {
+    const overlay = document.getElementById('cyclingLoader');
+    if (!overlay) return;
     overlay.style.display = 'flex';
-    
-    let currentStage = 0;
-    
-    function runStage() {
-        if (currentStage < stages.length) {
-            loadingText.innerText = stages[currentStage].text;
-            progressFill.style.width = stages[currentStage].progress + '%';
-            
-            setTimeout(() => {
-                currentStage++;
-                runStage();
-            }, stages[currentStage-1]?.delay || 1000);
-        } else {
-            // Done loading
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                progressFill.style.width = '0%';
-                // Show step 4
-                document.getElementById('step-4').classList.add('active');
-            }, 500);
-        }
+    overlay.style.opacity = '0';
+    requestAnimationFrame(() => { overlay.style.transition = 'opacity 0.4s ease'; overlay.style.opacity = '1'; });
+
+    this._msgEl = document.getElementById('loaderStatusText');
+    this._barEl = document.getElementById('loaderProgress');
+    this._idx = 0;
+    this._tick(onComplete);
+  },
+
+  _tick(onComplete) {
+    if (this._idx >= this.statusMessages.length) {
+      setTimeout(() => this._finish(onComplete), 600);
+      return;
     }
-    
-    runStage();
+    if (this._msgEl) this._msgEl.textContent = this.statusMessages[this._idx];
+    if (this._barEl) this._barEl.style.width = this.progressSteps[this._idx] + '%';
+    this._idx++;
+    this._timer = setTimeout(() => this._tick(onComplete), 1100);
+  },
+
+  _finish(onComplete) {
+    const overlay = document.getElementById('cyclingLoader');
+    if (overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 400); }
+    if (typeof onComplete === 'function') onComplete();
+  },
+
+  hide() {
+    clearTimeout(this._timer);
+    const overlay = document.getElementById('cyclingLoader');
+    if (overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 400); }
+  }
+};
+
+// ══════════════════════════════════════════
+// DEMO VERDICT TOGGLES (claim summary)
+// ══════════════════════════════════════════
+const VerdictDemo = {
+  verdicts: {
+    valid: {
+      badgeClass: 'verdict-approved',
+      badgeText: '✅ Claim Auto-Approved',
+      score: '98.5%',
+      scoreOffset: 4,   // stroke-dashoffset: 283 - (283 * 0.985) ≈ 4
+      ringColor: '#10B981',
+      message: 'Your warranty claim has passed multi-modal AI verification. All document hashes match the manufacturer database, and date validity is confirmed.',
+      toggleClass: 'active-valid'
+    },
+    invalid: {
+      badgeClass: 'verdict-rejected',
+      badgeText: '❌ Claim Rejected',
+      score: '94%',
+      scoreOffset: 17,
+      ringColor: '#EF4444',
+      message: 'AI analysis detected that this receipt fingerprint has already been used in a previous claim. The SHA-256 hash matches claim #CLM-9021. This claim cannot be processed.',
+      toggleClass: 'active-invalid'
+    },
+    review: {
+      badgeClass: 'verdict-review',
+      badgeText: '🔍 Manual Review Required',
+      score: '72%',
+      scoreOffset: 79,
+      ringColor: '#F59E0B',
+      message: 'The AI models detected discrepancies between the extracted purchase date and the warranty window. A human adjudicator will review this claim within 24–48 hours.',
+      toggleClass: 'active-review'
+    }
+  },
+
+  init() {
+    this.apply('valid');
+  },
+
+  apply(type) {
+    const v = this.verdicts[type];
+    if (!v) return;
+
+    // Badge
+    const badge = document.getElementById('verdictBadge');
+    if (badge) {
+      badge.className = 'verdict-badge ' + v.badgeClass;
+      badge.textContent = v.badgeText;
+    }
+
+    // Ring
+    const ringFill = document.getElementById('ringFill');
+    if (ringFill) {
+      ringFill.style.stroke = v.ringColor;
+      ringFill.style.strokeDashoffset = v.scoreOffset;
+    }
+    const ringScore = document.getElementById('ringScore');
+    if (ringScore) ringScore.textContent = v.score;
+
+    // Message
+    const msg = document.getElementById('verdictMessage');
+    if (msg) msg.textContent = v.message;
+
+    // Toggle buttons
+    document.querySelectorAll('.demo-toggle').forEach(btn => {
+      btn.classList.remove('active-valid', 'active-invalid', 'active-review');
+      if (btn.dataset.verdict === type) btn.classList.add(v.toggleClass);
+    });
+  }
+};
+
+// ══════════════════════════════════════════
+// DRAG & DROP UPLOAD
+// ══════════════════════════════════════════
+function initDropzone(zoneId, inputId, listId) {
+  const zone  = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  const list  = document.getElementById(listId);
+  if (!zone || !input) return;
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', ()  => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files, list);
+  });
+  zone.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => handleFiles(input.files, list));
 }
 
-// Final Outcome Simulator
-function showOutcome(type) {
-    const container = document.getElementById('outcome-container');
-    
-    if (type === 'valid') {
-        container.innerHTML = `
-            <i class="fa-solid fa-circle-check text-olive mb-3" style="font-size: 4rem;"></i>
-            <h3 class="text-dark mb-2">Claim Auto-Approved</h3>
-            <div class="badge-valid mb-4">98.5% Confidence Score</div>
-            <p class="text-muted px-lg-5 mb-5">Your warranty claim has passed multi-modal AI verification. All document hashes match the manufacturer database, and date validity is confirmed.</p>
-            <button class="btn btn-olive"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF Audit Certificate</button>
-            <button class="btn btn-outline-olive ms-2" onclick="location.reload()">File Another Claim</button>
-        `;
-    } else if (type === 'invalid') {
-        container.innerHTML = `
-            <i class="fa-solid fa-circle-xmark text-danger mb-3" style="font-size: 4rem;"></i>
-            <h3 class="text-dark mb-2">Claim Rejected</h3>
-            <div class="badge-invalid mb-4">Duplicate Receipt Hash</div>
-            <p class="text-muted px-lg-5 mb-5">AI analysis detected that this receipt fingerprint has already been used in a previous claim (Claim ID: #C-9021). The claim cannot be processed.</p>
-            <button class="btn btn-outline-olive ms-2" onclick="location.reload()">Return to Dashboard</button>
-        `;
-    } else if (type === 'review') {
-        container.innerHTML = `
-            <i class="fa-solid fa-triangle-exclamation text-gold mb-3" style="font-size: 4rem;"></i>
-            <h3 class="text-dark mb-2">Manual Review Required</h3>
-            <div class="badge-review mb-4">Flagged for Human Escalation</div>
-            <p class="text-muted px-lg-5 mb-5">The AI model detected discrepancies between the extracted purchase date and the warranty window. This claim has been queued for our support team to review manually.</p>
-            <button class="btn btn-olive">Contact Support Team</button>
-            <button class="btn btn-outline-olive ms-2" onclick="location.reload()">Return Home</button>
-        `;
-    }
+function handleFiles(files, list) {
+  if (!list) return;
+  Array.from(files).forEach(file => {
+    const item = document.createElement('div');
+    item.className = 'dropzone-file';
+    const ext = file.name.split('.').pop().toUpperCase();
+    const icons = { PDF:'📄', PNG:'🖼️', JPG:'🖼️', JPEG:'🖼️', MP4:'🎥', MOV:'🎥' };
+    item.innerHTML = `<span>${icons[ext] || '📎'}</span>
+      <span class="file-name">${file.name}</span>
+      <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+      <button onclick="this.parentElement.remove()" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted)">×</button>`;
+    list.appendChild(item);
+  });
 }
+
+// ══════════════════════════════════════════
+// NAVBAR — Mobile hamburger
+// ══════════════════════════════════════════
+function initNavbar() {
+  const toggle = document.getElementById('navToggle');
+  const menu   = document.getElementById('navMenu');
+  if (!toggle || !menu) return;
+  toggle.addEventListener('click', () => {
+    const open = menu.classList.toggle('nav-open');
+    menu.style.display = open ? 'flex' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════
+// SMOOTH SCROLL for anchor links
+// ══════════════════════════════════════════
+function initSmoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+}
+
+// ══════════════════════════════════════════
+// SCROLL REVEAL — fade in on scroll
+// ══════════════════════════════════════════
+function initScrollReveal() {
+  const items = document.querySelectorAll('[data-reveal]');
+  if (!items.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) { en.target.style.animation = `fadeInUp 0.6s var(--ease-smooth) both`; io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  items.forEach(el => { el.style.opacity = '0'; io.observe(el); });
+}
+
+// ══════════════════════════════════════════
+// CLAIM FORM — multi-section validation
+// ══════════════════════════════════════════
+const ClaimForm = {
+  init() {
+    const submitBtn = document.getElementById('claimSubmitBtn');
+    if (!submitBtn) return;
+    submitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!this._validate()) return;
+      OCRLoader.show(() => {
+        // Navigate to summary page after loading
+        window.location.href = 'claim.html#summary';
+      });
+    });
+  },
+
+  _validate() {
+    let valid = true;
+    const required = document.querySelectorAll('[required]');
+    required.forEach(el => {
+      if (!el.value.trim()) {
+        el.style.borderColor = 'var(--danger)';
+        el.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
+        valid = false;
+        el.addEventListener('input', () => {
+          el.style.borderColor = '';
+          el.style.boxShadow = '';
+        }, { once: true });
+      }
+    });
+    if (!valid) {
+      const first = document.querySelector('[required]:invalid, .neo-input[style]');
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return valid;
+  }
+};
+
+// ══════════════════════════════════════════
+// GLOBAL PAGE INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Detect page context from body data-page attribute or URL
+  const page = document.body.dataset.page || 'default';
+
+  AXI.init(page);
+  initNavbar();
+  initSmoothScroll();
+  initScrollReveal();
+
+  // Page-specific init
+  if (page === 'claim') {
+    initDropzone('dropzone1', 'fileInput1', 'fileList1');
+    initDropzone('dropzone2', 'fileInput2', 'fileList2');
+    initDropzone('dropzone3', 'fileInput3', 'fileList3');
+    ClaimForm.init();
+  }
+
+  if (page === 'summary') {
+    VerdictDemo.init();
+    document.querySelectorAll('.demo-toggle').forEach(btn => {
+      btn.addEventListener('click', () => VerdictDemo.apply(btn.dataset.verdict));
+    });
+  }
+});

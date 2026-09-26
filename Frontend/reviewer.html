@@ -3,1152 +3,1393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AssureX — Reviewer Module</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
-      colors: {
-        navy: { DEFAULT:'#0f172a', 800:'#1e293b', 700:'#334155', 600:'#475569' },
-        emerald: { DEFAULT:'#10b981', 600:'#059669' },
-        amber: { DEFAULT:'#f59e0b', 600:'#d97706' },
-        rose: { DEFAULT:'#f43f5e', 600:'#e11d48' },
-        sky: { DEFAULT:'#0284c7', 400:'#38bdf8' },
-      }
-    }
-  }
-}
-</script>
+<title>AssureX — Reviewer Portal</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
-  .page { display: none; }
-  .page.active { display: flex; flex-direction: column; height: 100%; }
-  .sidebar-link { transition: all .15s; }
-  .sidebar-link.active { background: rgba(16,185,129,.15); border-left: 3px solid #10b981; color: #10b981; }
-  .sidebar-link:not(.active):hover { background: rgba(255,255,255,.07); color: #cbd5e1; }
-  .claim-card { transition: all .15s; cursor: pointer; }
-  .claim-card:hover { background: #f8fafc; }
-  .claim-card.active { background: #eff6ff; border-left: 3px solid #0284c7; }
-  .progress-bar { height: 8px; border-radius: 4px; transition: width .5s ease; }
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: #f1f5f9; }
-  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
-  .modal-overlay.open { display: flex; }
-  .tab-btn { border-bottom: 2px solid transparent; }
-  .tab-btn.active { border-bottom: 2px solid #0284c7; color: #0284c7; }
-  .filter-btn { border: 1px solid #e2e8f0; }
-  .filter-btn.active { background: #0f172a; color: white; border-color: #0f172a; }
-  .action-btn-group button { transition: all .15s; }
-  .action-btn-group .selected { ring: 2px; }
-  canvas { max-width: 100%; }
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; font-size: 13.5px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+/* ── HEADER ── */
+.rp-header {
+  background: #0f172a;
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #1e293b;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.rp-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.rp-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rp-logo-text { color: #f8fafc; font-weight: 700; font-size: 15px; }
+.rp-logo-sub { color: #64748b; font-size: 10px; font-weight: 400; }
+.rp-nav { display: flex; gap: 2px; margin-left: 28px; }
+.rp-nav-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Inter', sans-serif;
+}
+.rp-nav-btn:hover { background: rgba(255,255,255,.07); color: #e2e8f0; }
+.rp-nav-btn.active { background: rgba(16,185,129,.15); color: #10b981; }
+.rp-header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.rp-reviewer-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  padding: 5px 12px 5px 6px;
+}
+.rp-avatar {
+  width: 28px; height: 28px;
+  background: #334155;
+  border-radius: 7px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rp-reviewer-name { color: #e2e8f0; font-size: 12px; font-weight: 600; }
+.rp-reviewer-role { color: #64748b; font-size: 10px; }
+.rp-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+.rp-logout-btn {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.25);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+}
+.rp-logout-btn:hover { background: rgba(239,68,68,.2); }
+
+/* ── PAGES ── */
+.rp-page { display: none; }
+.rp-page.active { display: block; }
+
+/* ── CONTROL BAR ── */
+.control-bar {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  top: 58px;
+  z-index: 100;
+}
+.control-bar .form-control,
+.control-bar .form-select {
+  font-size: 13px;
+  border-color: #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  height: 36px;
+  background: #f8fafc;
+  color: #1e293b;
+}
+.control-bar .form-control:focus,
+.control-bar .form-select:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2,132,199,.12);
+  outline: none;
+}
+.control-bar .search-wrap { position: relative; min-width: 240px; flex: 1; }
+.control-bar .search-wrap .fa { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
+.control-bar .search-wrap .form-control { padding-left: 32px; }
+.reset-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.reset-btn:hover { background: #e2e8f0; }
+
+/* ── TABLE WRAPPER ── */
+.table-wrapper { padding: 20px 24px; }
+.data-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.data-card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.data-card-title { font-weight: 700; font-size: 14px; color: #0f172a; }
+.data-count-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── TABLE ── */
+.rp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rp-table thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+.rp-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #64748b;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color .12s;
+}
+.rp-table th:hover { color: #0284c7; }
+.rp-table th .sort-icon { font-size: 9px; margin-left: 4px; color: #cbd5e1; }
+.rp-table th.sort-asc .sort-icon, .rp-table th.sort-desc .sort-icon { color: #0284c7; }
+.rp-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .1s; }
+.rp-table tbody tr:last-child { border-bottom: none; }
+.rp-table tbody tr:hover { background: #f8fafc; }
+.rp-table td { padding: 11px 14px; vertical-align: middle; color: #334155; }
+.rp-table .date-main { font-weight: 600; color: #1e293b; }
+.rp-table .date-time { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+.rp-table .sn-code { font-family: 'Courier New', monospace; font-weight: 700; color: #0f172a; font-size: 12.5px; }
+.rp-table .cust-name { font-weight: 600; color: #1e293b; }
+.rp-table .cust-id { font-size: 11px; color: #94a3b8; margin-top: 1px; font-family: monospace; }
+.empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+.empty-state i { font-size: 40px; margin-bottom: 12px; display: block; }
+
+/* ── BADGES ── */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-approved    { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-rejected    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.badge-pending     { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-info-req    { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.badge-overridden  { background: #ede9fe; color: #4c1d95; border: 1px solid #c4b5fd; }
+.badge-cat-health  { background: #ecfdf5; color: #064e3b; border: 1px solid #6ee7b7; }
+.badge-cat-auto    { background: #eff6ff; color: #1e3a5f; border: 1px solid #93c5fd; }
+.badge-cat-property{ background: #fff7ed; color: #7c2d12; border: 1px solid #fdba74; }
+.badge-cat-general { background: #f5f3ff; color: #3b0764; border: 1px solid #c4b5fd; }
+
+/* ── VIEW MORE BUTTON ── */
+.view-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0284c7;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+.view-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+
+/* ── MODAL ── */
+.rp-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,.65);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.rp-modal-overlay.open { display: flex; }
+.rp-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 1060px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  animation: modalIn .2s ease;
+}
+@keyframes modalIn { from { transform: translateY(-16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header {
+  background: #0f172a;
+  padding: 16px 22px;
+  border-radius: 14px 14px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.modal-claim-id { color: #f8fafc; font-weight: 800; font-size: 16px; font-family: monospace; }
+.modal-close {
+  margin-left: auto;
+  background: rgba(255,255,255,.1);
+  border: none;
+  color: #94a3b8;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.modal-close:hover { background: rgba(255,255,255,.18); color: #fff; }
+.modal-quick-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.qa-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Inter', sans-serif;
+}
+.qa-approve  { background: #10b981; color: #fff; }
+.qa-approve:hover  { background: #059669; }
+.qa-reject   { background: transparent; border: 1.5px solid #f43f5e; color: #f43f5e; }
+.qa-reject:hover   { background: rgba(244,63,94,.1); }
+.qa-info     { background: transparent; border: 1.5px solid #38bdf8; color: #38bdf8; }
+.qa-info:hover     { background: rgba(56,189,248,.1); }
+.qa-override { background: transparent; border: 1.5px solid #a78bfa; color: #a78bfa; }
+.qa-override:hover { background: rgba(167,139,250,.1); }
+.modal-body { padding: 22px; overflow-y: auto; max-height: calc(90vh - 130px); }
+.modal-col-left, .modal-col-right { display: flex; flex-direction: column; gap: 14px; }
+.detail-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.detail-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #64748b;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.detail-section-title i { font-size: 12px; }
+.kv-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; border-bottom: 1px dashed #e2e8f0; gap: 10px; }
+.kv-row:last-child { border-bottom: none; }
+.kv-key { color: #64748b; font-size: 12px; flex-shrink: 0; }
+.kv-val { color: #1e293b; font-weight: 600; font-size: 12px; text-align: right; font-family: monospace; }
+.kv-val.plain { font-family: 'Inter', sans-serif; }
+.doc-thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
+  font-size: 10px;
+  color: #64748b;
+  gap: 4px;
+  text-align: center;
+}
+.doc-thumb:hover { border-color: #0284c7; background: #eff6ff; color: #0284c7; }
+.doc-thumb i { font-size: 22px; }
+
+/* AI Risk Gauge */
+.risk-gauge-wrap { text-align: center; }
+.risk-gauge-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 22px;
+  margin: 0 auto 8px;
+  border: 5px solid;
+}
+.risk-low    { border-color: #10b981; color: #065f46; background: #d1fae5; }
+.risk-medium { border-color: #f59e0b; color: #92400e; background: #fef3c7; }
+.risk-high   { border-color: #ef4444; color: #991b1b; background: #fee2e2; }
+.risk-label  { font-size: 11px; font-weight: 700; color: #64748b; }
+.ai-bullet { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #334155; padding: 5px 0; border-bottom: 1px dashed #e2e8f0; }
+.ai-bullet:last-child { border-bottom: none; }
+.ai-bullet i { font-size: 10px; margin-top: 3px; flex-shrink: 0; }
+.ocr-field-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12px; }
+.ocr-field-row:last-child { border-bottom: none; }
+.ocr-field-name { color: #64748b; width: 110px; flex-shrink: 0; }
+.ocr-field-val { font-family: monospace; font-weight: 700; color: #0f172a; flex: 1; }
+.ocr-conf {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+.conf-high   { background: #d1fae5; color: #065f46; }
+.conf-medium { background: #fef3c7; color: #92400e; }
+.conf-low    { background: #fee2e2; color: #991b1b; }
+
+/* Modal Footer */
+.modal-footer-custom {
+  padding: 16px 22px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-footer-custom textarea {
+  resize: none;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #1e293b;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .15s;
+}
+.modal-footer-custom textarea:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2,132,199,.12); }
+.footer-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-save {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  border-radius: 8px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-save:hover { background: #e2e8f0; }
+.btn-confirm {
+  background: #0f172a;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 7px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Inter', sans-serif;
+}
+.btn-confirm:hover { background: #1e3a5f; }
+
+/* ── ANALYTICS PAGE ── */
+.analytics-wrapper { padding: 20px 24px; }
+.metric-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.metric-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.metric-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #64748b; }
+.metric-value { font-size: 30px; font-weight: 800; color: #0f172a; line-height: 1; }
+.metric-sub { font-size: 12px; color: #64748b; }
+.metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.analytics-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden;
+}
+.panel-header {
+  padding: 13px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-header i { color: #0284c7; }
+.panel-body { padding: 16px 18px; }
+
+/* OCR Panel */
+.ocr-doc-viewer {
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+.ocr-doc-paper {
+  background: #fff;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 18px;
+  font-size: 11px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.3);
+  transform-origin: center;
+  transition: transform .3s;
+}
+.ocr-doc-controls { display: flex; gap: 6px; margin-top: 10px; }
+.ocr-ctrl-btn {
+  background: #334155;
+  border: none;
+  color: #94a3b8;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Inter', sans-serif;
+}
+.ocr-ctrl-btn:hover { background: #475569; color: #e2e8f0; }
+
+/* Risk Gauge bar */
+.risk-bar-wrap { margin: 10px 0; }
+.risk-bar-track {
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.15);
+}
+.risk-bar-needle {
+  position: absolute;
+  top: -4px;
+  width: 6px;
+  height: 22px;
+  background: #0f172a;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  transition: left .4s cubic-bezier(.34,1.56,.64,1);
+}
+.anomaly-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.anomaly-table th { padding: 7px 10px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 11px; font-weight: 700; text-align: left; }
+.anomaly-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+.anomaly-table tr:last-child td { border-bottom: none; }
+.anom-high { color: #dc2626; font-weight: 700; }
+.anom-medium { color: #d97706; font-weight: 700; }
+.anom-low { color: #059669; font-weight: 700; }
+
+/* ── Tooltip ── */
+.sort-indicator::after {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 9px;
+  margin-left: 4px;
+  color: #cbd5e1;
+}
+
+/* ── Pagination ── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+}
+.pg-btns { display: flex; gap: 4px; }
+.pg-btn {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #334155;
+  transition: all .12s;
+  font-family: 'Inter', sans-serif;
+}
+.pg-btn:hover { background: #f1f5f9; }
+.pg-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+@media (max-width: 768px) {
+  .analytics-grid { grid-template-columns: 1fr; }
+  .analytics-grid-3 { grid-template-columns: 1fr; }
+  .rp-nav-btn span { display: none; }
+  .control-bar { flex-direction: column; align-items: stretch; }
+  .modal-body .row { flex-direction: column; }
+}
 </style>
 </head>
-<body class="bg-slate-100 overflow-hidden">
+<body>
 
-<!-- ╔══════════════════════════════════════════════════════════╗
-     ║              MAIN APPLICATION SHELL                     ║
-     ╚══════════════════════════════════════════════════════════╝ -->
-<div class="flex h-screen overflow-hidden">
+<!-- ══════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════ -->
+<header class="rp-header">
+  <a href="#" class="rp-logo">
+    <div class="rp-logo-icon"><i class="fa-solid fa-shield-halved text-white" style="font-size:15px;"></i></div>
+    <div>
+      <div class="rp-logo-text">AssureX</div>
+      <div class="rp-logo-sub">Reviewer Portal</div>
+    </div>
+  </a>
 
-  <!-- ── SIDEBAR ─────────────────────────────────────────────── -->
-  <aside class="w-[220px] flex-shrink-0 flex flex-col" style="background:#0f172a;">
-    <!-- Logo -->
-    <div class="px-5 py-5 border-b border-slate-800">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#10b981,#059669)">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
-        <div>
-          <div class="text-white font-bold text-sm leading-none">AssureX</div>
-          <div class="text-slate-400 text-[10px] leading-snug mt-0.5">Smarter Claims, Fairer Decisions.</div>
-        </div>
+  <nav class="rp-nav">
+    <button class="rp-nav-btn active" id="nav-queue" onclick="showPage('queue')">
+      <i class="fa-solid fa-list-check"></i><span>Reviewer Queue</span>
+    </button>
+    <button class="rp-nav-btn" id="nav-analytics" onclick="showPage('analytics')">
+      <i class="fa-solid fa-chart-mixed"></i><span>AI Analytics & OCR</span>
+    </button>
+  </nav>
+
+  <div class="rp-header-right">
+    <div class="rp-status-dot"></div>
+    <div class="rp-reviewer-badge">
+      <div class="rp-avatar">RH</div>
+      <div>
+        <div class="rp-reviewer-name">Rania Hassan</div>
+        <div class="rp-reviewer-role">Human Adjudicator</div>
+      </div>
+    </div>
+    <button class="rp-logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE: REVIEWER QUEUE
+══════════════════════════════════════════════════ -->
+<div id="page-queue" class="rp-page active">
+
+  <!-- Control Bar -->
+  <div class="control-bar">
+    <div class="search-wrap">
+      <i class="fa fa-search"></i>
+      <input type="text" id="searchInput" class="form-control" placeholder="Search by Customer Name, Serial No, or Claim ID…" oninput="applyFilters()">
+    </div>
+    <select id="filterCat" class="form-select" style="width:140px;" onchange="applyFilters()">
+      <option value="">All Categories</option>
+      <option value="Health">Health</option>
+      <option value="Auto">Auto</option>
+      <option value="Property">Property</option>
+      <option value="General">General</option>
+    </select>
+    <select id="filterStatus" class="form-select" style="width:160px;" onchange="applyFilters()">
+      <option value="">All Statuses</option>
+      <option value="Pending">Pending</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+      <option value="Info Requested">Info Requested</option>
+      <option value="Overridden">Overridden</option>
+    </select>
+    <input type="date" id="filterDateFrom" class="form-control" style="width:140px;" onchange="applyFilters()" title="From Date">
+    <input type="date" id="filterDateTo" class="form-control" style="width:140px;" onchange="applyFilters()" title="To Date">
+    <button class="reset-btn" onclick="resetFilters()"><i class="fa fa-rotate-left"></i> Reset Filters</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <div class="data-card">
+      <div class="data-card-header">
+        <span class="data-card-title"><i class="fa-solid fa-table-list me-2" style="color:#0284c7;"></i>Claim Queue</span>
+        <span class="data-count-badge" id="rowCount">0 Claims</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="rp-table" id="claimsTable">
+          <thead>
+            <tr>
+              <th onclick="sortBy('date')" id="th-date">Date <i class="fa fa-sort sort-icon"></i></th>
+              <th onclick="sortBy('category')" id="th-category">Category <i class="fa fa-sort sort-icon"></i></th>
+              <th onclick="sortBy('serial')" id="th-serial">Claim ID / Serial <i class="fa fa-sort sort-icon"></i></th>
+              <th onclick="sortBy('customer')" id="th-customer">Customer <i class="fa fa-sort sort-icon"></i></th>
+              <th onclick="sortBy('status')" id="th-status">Status <i class="fa fa-sort sort-icon"></i></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <span id="paginationInfo" class="text-muted"></span>
+        <div class="pg-btns" id="paginationBtns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE: AI ANALYTICS & OCR
+══════════════════════════════════════════════════ -->
+<div id="page-analytics" class="rp-page">
+  <div class="analytics-wrapper">
+
+    <!-- Metric Cards -->
+    <div class="metric-cards">
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#eff6ff; color:#0284c7;"><i class="fa-solid fa-file-shield"></i></div>
+        <div class="metric-label">Total Claims Processed</div>
+        <div class="metric-value">1,847</div>
+        <div class="metric-sub" style="color:#10b981;">↑ 14.2% this month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#ecfdf5; color:#10b981;"><i class="fa-solid fa-scanner"></i></div>
+        <div class="metric-label">OCR Accuracy Rate</div>
+        <div class="metric-value" style="color:#10b981;">94.7%</div>
+        <div class="metric-sub">Avg confidence: 91.3%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#fef3c7; color:#d97706;"><i class="fa-solid fa-robot"></i></div>
+        <div class="metric-label">Auto-Approved vs Flagged</div>
+        <div class="metric-value" style="color:#d97706;">68:32</div>
+        <div class="metric-sub">68% auto-resolved</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#f5f3ff; color:#7c3aed;"><i class="fa-solid fa-clock"></i></div>
+        <div class="metric-label">Avg Review Time</div>
+        <div class="metric-value" style="color:#7c3aed;">4.2m</div>
+        <div class="metric-sub">Per claim (manual review)</div>
       </div>
     </div>
 
-    <!-- Nav Links -->
-    <nav class="flex-1 py-4 space-y-0.5 px-3">
-      <button onclick="showPage('dashboard')" class="sidebar-link active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left" id="nav-dashboard">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        Review Dashboard
-      </button>
-      <button onclick="showPage('ocr')" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left text-slate-400" id="nav-ocr">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        OCR Verification
-      </button>
-      <button onclick="showPage('analytics')" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left text-slate-400" id="nav-analytics">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        AI Analytics & Metrics
-      </button>
-      <button onclick="showPage('audit')" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left text-slate-400" id="nav-audit">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Audit Reports
-      </button>
-    </nav>
-
-    <!-- Bottom Links -->
-    <div class="px-3 pb-5 space-y-0.5 border-t border-slate-800 pt-4">
-      <button class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left text-slate-400">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Settings
-      </button>
-      <button class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left text-slate-400">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        Logout
-      </button>
-    </div>
-  </aside>
-
-  <!-- ── MAIN AREA ────────────────────────────────────────────── -->
-  <div class="flex-1 flex flex-col overflow-hidden">
-
-    <!-- Global Header -->
-    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4 flex-shrink-0">
-      <div class="flex-1">
-        <h1 id="pageTitle" class="text-xl font-bold text-slate-900">Reviewer Dashboard</h1>
-        <p class="text-xs text-slate-500 mt-0.5">Review claims that require manual evaluation and make a decision.</p>
+    <!-- Row 1: Charts -->
+    <div class="analytics-grid mb-3">
+      <div class="panel">
+        <div class="panel-header"><i class="fa-solid fa-circle-half-stroke"></i> Model Agreement Rate</div>
+        <div class="panel-body"><canvas id="chartAgreement" height="200"></canvas></div>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="relative">
-          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="text" placeholder="Search claim ID, customer name, or product..." class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-700 w-72 focus:outline-none focus:border-sky-400">
-        </div>
-        <button class="relative p-2 rounded-xl border border-slate-200 hover:bg-slate-50">
-          <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
-        </button>
-        <div class="flex items-center gap-2 bg-slate-100 rounded-xl px-3 py-2">
-          <div class="w-7 h-7 rounded-lg bg-navy text-white text-xs font-bold flex items-center justify-center">RH</div>
-          <div class="text-left">
-            <div class="text-xs font-semibold text-slate-800">Reviewer</div>
-            <div class="text-[10px] text-slate-500">Human Adjudicator</div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- ══════════════════════════════════════════════
-         PAGE 1: REVIEWER DASHBOARD
-    ══════════════════════════════════════════════ -->
-    <div id="page-dashboard" class="page active flex-1 overflow-hidden">
-      <div class="flex h-full overflow-hidden">
-
-        <!-- COLUMN A: Review Queue -->
-        <div class="w-[280px] flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
-          <div class="px-4 pt-4 pb-3 border-b border-slate-100">
-            <div class="flex items-center justify-between mb-3">
-              <h2 class="font-bold text-slate-900 text-sm">Review Queue</h2>
-              <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">5</span>
-            </div>
-            <!-- Filter Tabs -->
-            <div class="flex gap-1 flex-wrap">
-              <button class="filter-btn active text-xs px-2.5 py-1 rounded-lg font-semibold" onclick="filterQueue('all',this)">All (5)</button>
-              <button class="filter-btn text-xs px-2.5 py-1 rounded-lg font-semibold text-slate-600" onclick="filterQueue('manual',this)">Manual Review (5)</button>
-              <button class="filter-btn text-xs px-2.5 py-1 rounded-lg font-semibold text-slate-600" onclick="filterQueue('pending',this)">Pending (0)</button>
-              <button class="filter-btn text-xs px-2.5 py-1 rounded-lg font-semibold text-slate-600" onclick="filterQueue('completed',this)">Completed (0)</button>
-            </div>
-          </div>
-          <div class="px-3 py-2 border-b border-slate-100">
-            <div class="relative">
-              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input type="text" placeholder="Search claims..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-sky-400">
-            </div>
-          </div>
-          <div id="claimsList" class="flex-1 overflow-y-auto py-2"></div>
-        </div>
-
-        <!-- COLUMN B: Active Claim Detail -->
-        <div id="colB" class="flex-1 overflow-y-auto bg-slate-50 p-5">
-          <div id="claimDetailContent"></div>
-        </div>
-
-        <!-- COLUMN C: AI Summary & Decision Trigger -->
-        <div class="w-[300px] flex-shrink-0 bg-white border-l border-slate-200 overflow-y-auto p-4">
-          <div id="colC"></div>
-        </div>
+      <div class="panel">
+        <div class="panel-header"><i class="fa-solid fa-chart-bar"></i> Confidence Score Distribution</div>
+        <div class="panel-body"><canvas id="chartConfidence" height="200"></canvas></div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         PAGE 2: OCR VERIFICATION
-    ══════════════════════════════════════════════ -->
-    <div id="page-ocr" class="page flex-1 overflow-hidden">
-      <div class="flex h-full overflow-hidden">
-        <!-- Left: Document Viewer -->
-        <div class="w-1/2 bg-slate-900 flex flex-col border-r border-slate-700">
-          <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
-            <span class="text-white font-semibold text-sm">Document Inspector</span>
-            <div class="ml-auto flex gap-2">
-              <button class="p-1.5 bg-slate-700 rounded-lg hover:bg-slate-600 text-slate-300" title="Zoom In"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></button>
-              <button class="p-1.5 bg-slate-700 rounded-lg hover:bg-slate-600 text-slate-300" title="Zoom Out"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/></svg></button>
-              <button class="p-1.5 bg-slate-700 rounded-lg hover:bg-slate-600 text-slate-300" title="Rotate"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></button>
-              <button class="p-1.5 bg-emerald-600 rounded-lg hover:bg-emerald-500 text-white text-xs font-semibold px-3">Highlight Fields</button>
+    <div class="analytics-grid mb-3">
+      <div class="panel" style="grid-column: 1 / -1;">
+        <div class="panel-header"><i class="fa-solid fa-chart-line"></i> Fraud Anomaly Trends (Last 12 Months)</div>
+        <div class="panel-body"><canvas id="chartFraud" height="100"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Row 2: OCR Deep-Dive + Fraud/Audit -->
+    <div class="analytics-grid-3 mb-3">
+
+      <!-- OCR Image Panel -->
+      <div class="panel">
+        <div class="panel-header"><i class="fa-solid fa-file-image"></i> OCR Document Viewer</div>
+        <div class="panel-body">
+          <div class="ocr-doc-viewer" id="ocrViewer">
+            <div class="ocr-doc-paper" id="ocrPaper">
+              <div style="font-weight:800; font-size:14px; border-bottom:2px solid #0f172a; padding-bottom:6px; margin-bottom:10px;">TechMart Pro — Invoice</div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span style="color:#64748b;">Invoice #</span><mark style="background:#fef08a; padding:0 4px;">INV-458712</mark></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span style="color:#64748b;">Date</span><mark style="background:#fef08a; padding:0 4px;">Jan 15, 2024</mark></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span style="color:#64748b;">Customer</span><span>Ayesha Khan</span></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span style="color:#64748b;">Serial</span><mark style="background:#bbf7d0; padding:0 4px; font-size:9px;">SN 358274065832741</mark></div>
+              <div style="border-top:1px solid #e2e8f0; margin:8px 0;"></div>
+              <div style="display:flex; justify-content:space-between; font-weight:800;"><span>Total</span><mark style="background:#fef08a; padding:0 4px;">PKR 89,999</mark></div>
             </div>
           </div>
-          <div class="flex-1 flex items-center justify-center p-6">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md aspect-[3/4] flex flex-col items-center justify-center gap-4 border-4 border-emerald-400/30 relative overflow-hidden">
-              <!-- Simulated invoice document -->
-              <div class="absolute inset-0 p-6 text-left">
-                <div class="text-slate-900 font-bold text-lg border-b-2 border-slate-900 pb-2 mb-4">TechMart Pro — Invoice</div>
-                <div class="space-y-2 text-xs text-slate-700">
-                  <div class="flex justify-between"><span class="font-semibold">Invoice #:</span><span class="bg-yellow-200 px-1 rounded">INV-458712</span></div>
-                  <div class="flex justify-between"><span class="font-semibold">Date:</span><span class="bg-yellow-200 px-1 rounded">Jan 15, 2024</span></div>
-                  <div class="flex justify-between"><span class="font-semibold">Customer:</span><span>Ayesha Khan</span></div>
-                  <div class="flex justify-between"><span class="font-semibold">Product:</span><span>Samsung Galaxy S23</span></div>
-                  <div class="flex justify-between"><span class="font-semibold">Serial No:</span><span class="bg-yellow-200 px-1 rounded">SN 358274065832741</span></div>
-                  <div class="border-t border-slate-300 mt-3 pt-2"></div>
-                  <div class="flex justify-between font-bold text-sm"><span>Total Amount:</span><span class="bg-yellow-200 px-1 rounded">PKR 89,999</span></div>
-                  <div class="flex justify-between"><span class="font-semibold">Warranty:</span><span class="bg-green-100 px-1 rounded text-green-800">1 Year</span></div>
+          <div class="ocr-doc-controls">
+            <button class="ocr-ctrl-btn" onclick="ocrZoomIn()"><i class="fa fa-magnifying-glass-plus"></i> Zoom In</button>
+            <button class="ocr-ctrl-btn" onclick="ocrZoomOut()"><i class="fa fa-magnifying-glass-minus"></i> Zoom Out</button>
+            <button class="ocr-ctrl-btn" onclick="ocrRotate()"><i class="fa fa-rotate-right"></i> Rotate</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OCR Fields -->
+      <div class="panel">
+        <div class="panel-header"><i class="fa-solid fa-text-size"></i> Extracted OCR Fields</div>
+        <div class="panel-body">
+          <div class="ocr-field-row"><span class="ocr-field-name">Invoice #</span><span class="ocr-field-val">INV-458712</span><span class="ocr-conf conf-high">97%</span></div>
+          <div class="ocr-field-row"><span class="ocr-field-name">Purchase Date</span><span class="ocr-field-val">Jan 15, 2024</span><span class="ocr-conf conf-high">94%</span></div>
+          <div class="ocr-field-row"><span class="ocr-field-name">Serial Number</span><span class="ocr-field-val" style="font-size:10px;">SN358274065832741</span><span class="ocr-conf conf-medium">78%</span></div>
+          <div class="ocr-field-row"><span class="ocr-field-name">Store Name</span><span class="ocr-field-val">TechMart Pro</span><span class="ocr-conf conf-high">99%</span></div>
+          <div class="ocr-field-row"><span class="ocr-field-name">Amount</span><span class="ocr-field-val">PKR 89,999</span><span class="ocr-conf conf-high">96%</span></div>
+          <div class="ocr-field-row"><span class="ocr-field-name">Warranty</span><span class="ocr-field-val">1 Year</span><span class="ocr-conf conf-high">91%</span></div>
+          <div style="margin-top:14px; display:flex; gap:8px;">
+            <button class="btn-confirm" style="font-size:11px; padding:6px 14px; flex:1;"><i class="fa fa-rotate"></i> Re-run OCR</button>
+            <button class="btn-save" style="font-size:11px; flex:1;"><i class="fa fa-floppy-disk"></i> Save Corrected</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fraud & Audit -->
+      <div class="panel">
+        <div class="panel-header"><i class="fa-solid fa-triangle-exclamation"></i> Fraud & Audit Panel</div>
+        <div class="panel-body">
+          <!-- Risk Gauge -->
+          <div class="risk-bar-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-bottom:5px;">
+              <span>Low Risk</span><span>Medium</span><span>High Risk</span>
+            </div>
+            <div class="risk-bar-track"><div class="risk-bar-needle" id="riskNeedle" style="left:42%;"></div></div>
+            <div style="text-align:center; font-size:12px; font-weight:700; color:#d97706; margin-top:8px;">Current Risk: Medium (42%)</div>
+          </div>
+          <div style="height:1px; background:#f1f5f9; margin:12px 0;"></div>
+          <!-- AI Recommendation -->
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; margin-bottom:8px;">AI Recommendation Breakdown</div>
+          <canvas id="chartReco" height="140"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Anomaly Log Table -->
+    <div class="panel">
+      <div class="panel-header"><i class="fa-solid fa-circle-exclamation"></i> Anomaly Detection Log</div>
+      <div class="panel-body" style="padding:0;">
+        <table class="anomaly-table">
+          <thead><tr>
+            <th>Timestamp</th><th>Claim ID</th><th>Anomaly Type</th><th>Details</th><th>Risk Level</th><th>Action Taken</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Aug 20, 2025 10:24</td><td class="anom-high" style="font-family:monospace;">CLM-1001</td><td>Duplicate Serial Number</td><td>SN matched across 2 claims</td><td><span class="anom-high">High</span></td><td>Escalated to Reviewer</td></tr>
+            <tr><td>Aug 19, 2025 15:11</td><td class="anom-medium" style="font-family:monospace;">CLM-1008</td><td>Date Contradiction</td><td>Fault date before purchase date</td><td><span class="anom-medium">Medium</span></td><td>Info Requested</td></tr>
+            <tr><td>Aug 19, 2025 11:42</td><td class="anom-high" style="font-family:monospace;">CLM-1012</td><td>Invoice Image Quality</td><td>DPI &lt; 200, OCR confidence 54%</td><td><span class="anom-high">High</span></td><td>Manual OCR Review</td></tr>
+            <tr><td>Aug 18, 2025 04:21</td><td class="anom-low" style="font-family:monospace;">CLM-1016</td><td>SHA-256 Mismatch</td><td>Receipt hash differs from DB</td><td><span class="anom-low">Low</span></td><td>Auto-Resolved</td></tr>
+            <tr><td>Aug 18, 2025 01:07</td><td class="anom-medium" style="font-family:monospace;">CLM-1020</td><td>Model Disagreement</td><td>Python 79% vs TM 74%</td><td><span class="anom-medium">Medium</span></td><td>Flagged for Review</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: VIEW MORE DETAILS
+══════════════════════════════════════════════════ -->
+<div class="rp-modal-overlay" id="detailModal">
+  <div class="rp-modal">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <i class="fa-solid fa-file-shield" style="color:#38bdf8; font-size:18px;"></i>
+      <div>
+        <div class="modal-claim-id" id="mdClaimId">CLM-1001</div>
+        <div style="color:#64748b; font-size:11px; margin-top:2px;">
+          <span id="mdDate"></span> &nbsp;·&nbsp;
+          <span id="mdCat"></span> &nbsp;·&nbsp;
+          <span id="mdStatus"></span>
+        </div>
+      </div>
+      <div class="modal-quick-actions ms-3">
+        <button class="qa-btn qa-approve" onclick="quickAction('Approved')"><i class="fa fa-check"></i> Approve</button>
+        <button class="qa-btn qa-reject"  onclick="quickAction('Rejected')"><i class="fa fa-xmark"></i> Reject</button>
+        <button class="qa-btn qa-info"    onclick="quickAction('Info Requested')"><i class="fa fa-comment-dots"></i> Request Info</button>
+        <button class="qa-btn qa-override" onclick="quickAction('Overridden')"><i class="fa fa-lock"></i> Override</button>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i class="fa fa-xmark"></i></button>
+    </div>
+
+    <!-- Modal Body: 2-Column Grid -->
+    <div class="modal-body">
+      <div class="row g-3">
+        <!-- LEFT COLUMN -->
+        <div class="col-md-6 modal-col-left">
+
+          <!-- Customer Info -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-user text-primary"></i> Customer Information</div>
+            <div class="kv-row"><span class="kv-key">Full Name</span><span class="kv-val plain" id="mdCustName"></span></div>
+            <div class="kv-row"><span class="kv-key">Customer ID</span><span class="kv-val" id="mdCustId"></span></div>
+            <div class="kv-row"><span class="kv-key">Phone</span><span class="kv-val" id="mdPhone"></span></div>
+            <div class="kv-row"><span class="kv-key">Email</span><span class="kv-val" id="mdEmail"></span></div>
+            <div class="kv-row"><span class="kv-key">Address</span><span class="kv-val plain" id="mdAddress"></span></div>
+          </div>
+
+          <!-- Policy Details -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-file-contract text-warning"></i> Policy Details</div>
+            <div class="kv-row"><span class="kv-key">Policy #</span><span class="kv-val" id="mdPolicy"></span></div>
+            <div class="kv-row"><span class="kv-key">Product/Model</span><span class="kv-val plain" id="mdProduct"></span></div>
+            <div class="kv-row"><span class="kv-key">Serial No.</span><span class="kv-val" id="mdSerial"></span></div>
+            <div class="kv-row"><span class="kv-key">Purchase Date</span><span class="kv-val plain" id="mdPurchase"></span></div>
+            <div class="kv-row"><span class="kv-key">Warranty End</span><span class="kv-val plain" id="mdWarranty"></span></div>
+            <div class="kv-row"><span class="kv-key">Claim Amount</span><span class="kv-val" id="mdAmount"></span></div>
+          </div>
+
+          <!-- Claim Summary -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-list-ul text-danger"></i> Claim Summary</div>
+            <div class="kv-row"><span class="kv-key">Fault</span><span class="kv-val plain" id="mdFault"></span></div>
+            <div class="kv-row"><span class="kv-key">Fault Date</span><span class="kv-val plain" id="mdFaultDate"></span></div>
+            <div class="kv-row"><span class="kv-key">Claim Type</span><span class="kv-val plain">Warranty Claim</span></div>
+          </div>
+
+          <!-- Documents -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-paperclip" style="color:#7c3aed;"></i> Attached Documents</div>
+            <div class="doc-thumbs">
+              <div class="doc-thumb"><i class="fa fa-file-invoice"></i>Invoice</div>
+              <div class="doc-thumb"><i class="fa fa-id-card"></i>Warranty Card</div>
+              <div class="doc-thumb"><i class="fa fa-camera"></i>Photo</div>
+              <div class="doc-thumb"><i class="fa fa-address-card"></i>Customer ID</div>
+            </div>
+          </div>
+
+        </div><!-- /left col -->
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-md-6 modal-col-right">
+
+          <!-- AI Risk Score -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-brain text-danger"></i> AI Risk Assessment</div>
+            <div class="row g-2 align-items-center">
+              <div class="col-4 text-center">
+                <div class="risk-gauge-circle risk-medium" id="mdRiskCircle">
+                  <span id="mdRiskScore">42</span>
                 </div>
-                <!-- Highlight overlay indicators -->
-                <div class="absolute top-14 right-4 w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                <div class="absolute top-20 right-4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                <div class="risk-label" id="mdRiskLabel">Medium Risk</div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: OCR Extractions -->
-        <div class="w-1/2 bg-white overflow-y-auto p-6">
-          <div class="flex items-center justify-between mb-5">
-            <div>
-              <h2 class="font-bold text-slate-900 text-base">Extracted OCR Fields</h2>
-              <p class="text-xs text-slate-500 mt-0.5">Review, verify, and correct extracted data</p>
-            </div>
-            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              Verified
-            </span>
-          </div>
-
-          <div class="space-y-4">
-            <!-- Each OCR field -->
-            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice Number</span>
-                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">Confidence: 97%</span>
-              </div>
-              <div class="flex gap-2">
-                <input type="text" value="INV-458712" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-400 bg-white">
-                <button class="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition text-xs font-semibold px-3">Verify</button>
-              </div>
-            </div>
-
-            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Purchase Date</span>
-                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">Confidence: 94%</span>
-              </div>
-              <div class="flex gap-2">
-                <input type="text" value="Jan 15, 2024" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-400 bg-white">
-                <button class="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition text-xs font-semibold px-3">Verify</button>
-              </div>
-            </div>
-
-            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Serial Number</span>
-                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">Confidence: 78%</span>
-              </div>
-              <div class="flex gap-2">
-                <input type="text" value="SN 358274065832741" class="flex-1 border border-amber-300 rounded-lg px-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-amber-400 bg-amber-50">
-                <button class="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition text-xs font-semibold px-3">Verify</button>
-              </div>
-              <p class="text-xs text-amber-600 mt-1.5">⚠ Low confidence — manual verification recommended</p>
-            </div>
-
-            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Store Name</span>
-                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">Confidence: 99%</span>
-              </div>
-              <div class="flex gap-2">
-                <input type="text" value="TechMart Pro Electronics" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-sky-400 bg-white">
-                <button class="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition text-xs font-semibold px-3">Verify</button>
-              </div>
-            </div>
-
-            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice Amount</span>
-                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">Confidence: 96%</span>
-              </div>
-              <div class="flex gap-2">
-                <input type="text" value="PKR 89,999" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-400 bg-white">
-                <button class="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition text-xs font-semibold px-3">Verify</button>
+              <div class="col-8">
+                <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; margin-bottom:6px;">Model Verdicts</div>
+                <div style="font-size:12px; color:#334155; margin-bottom:4px;"><span style="color:#64748b;">Python ML:</span> <strong id="mdPyResult"></strong></div>
+                <div style="font-size:12px; color:#334155; margin-bottom:4px;"><span style="color:#64748b;">Teachable Machine:</span> <strong id="mdTmResult"></strong></div>
+                <div style="font-size:12px; color:#334155;"><span style="color:#64748b;">Match Status:</span> <strong id="mdMatch"></strong></div>
               </div>
             </div>
           </div>
 
-          <div class="flex gap-3 mt-6 pt-5 border-t border-slate-200">
-            <button class="flex-1 bg-slate-900 text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-slate-700 transition flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              Re-run OCR Engine
-            </button>
-            <button class="flex-1 bg-emerald-600 text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-emerald-500 transition flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-              Save Corrected OCR Data
-            </button>
+          <!-- AI Summary -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-sparkles" style="color:#f59e0b;"></i> AI Summary & Key Issues</div>
+            <div id="mdAiBullets"></div>
           </div>
-        </div>
+
+          <!-- OCR Extracted Data -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-scanner" style="color:#0284c7;"></i> OCR Extracted Data</div>
+            <div class="ocr-field-row"><span class="ocr-field-name">Invoice #</span><span class="ocr-field-val" id="mdOcrInvoice"></span><span class="ocr-conf conf-high">97%</span></div>
+            <div class="ocr-field-row"><span class="ocr-field-name">Purchase Date</span><span class="ocr-field-val" id="mdOcrDate"></span><span class="ocr-conf conf-high">94%</span></div>
+            <div class="ocr-field-row"><span class="ocr-field-name">Serial Number</span><span class="ocr-field-val" id="mdOcrSerial" style="font-size:10px;"></span><span class="ocr-conf conf-medium">78%</span></div>
+            <div class="ocr-field-row"><span class="ocr-field-name">Amount</span><span class="ocr-field-val" id="mdOcrAmount"></span><span class="ocr-conf conf-high">96%</span></div>
+            <div class="ocr-field-row"><span class="ocr-field-name">Warranty</span><span class="ocr-field-val" id="mdOcrWarranty"></span><span class="ocr-conf conf-high">91%</span></div>
+          </div>
+
+          <!-- Audit Trail -->
+          <div class="detail-section">
+            <div class="detail-section-title"><i class="fa fa-clock-rotate-left" style="color:#64748b;"></i> Audit Trail <span style="font-weight:400; color:#94a3b8; text-transform:none; letter-spacing:0;">(Immutable)</span></div>
+            <div id="mdAuditTrail" style="font-size:12px;"></div>
+          </div>
+
+        </div><!-- /right col -->
+      </div>
+    </div><!-- /modal-body -->
+
+    <!-- Footer -->
+    <div class="modal-footer-custom">
+      <label style="font-size:12px; font-weight:700; color:#475569;">Reviewer Remarks / Notes</label>
+      <textarea id="reviewerNotes" rows="3" placeholder="Enter your review notes, justification, or reason for decision here…"></textarea>
+      <div class="footer-actions">
+        <button class="btn-save" onclick="saveRemarks()"><i class="fa fa-floppy-disk me-1"></i> Save Remarks</button>
+        <button class="btn-confirm" onclick="confirmDecision()"><i class="fa fa-lock me-1"></i> Confirm Decision & Lock Audit</button>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         PAGE 3: AI ANALYTICS
-    ══════════════════════════════════════════════ -->
-    <div id="page-analytics" class="page flex-1 overflow-y-auto p-6 bg-slate-50">
-      <!-- KPI Cards -->
-      <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Total Approved</div>
-          <div class="text-3xl font-black text-emerald-600">1,284</div>
-          <div class="text-xs text-emerald-500 mt-1 font-semibold">↑ 12.4% this month</div>
-        </div>
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Total Rejected</div>
-          <div class="text-3xl font-black text-rose-500">387</div>
-          <div class="text-xs text-rose-500 mt-1 font-semibold">↑ 3.1% this month</div>
-        </div>
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Manual Review</div>
-          <div class="text-3xl font-black text-amber-500">214</div>
-          <div class="text-xs text-amber-500 mt-1 font-semibold">↓ 5.6% this month</div>
-        </div>
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-          <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Fraud Flagged</div>
-          <div class="text-3xl font-black text-slate-900">52</div>
-          <div class="text-xs text-slate-500 mt-1 font-semibold">SHA-256 duplicates</div>
-        </div>
-      </div>
-
-      <!-- Charts Grid -->
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-800 text-sm mb-1">Model Agreement Rate</h3>
-          <p class="text-xs text-slate-500 mb-4">Python ML vs Teachable Machine — Agreement vs Disagreement</p>
-          <div class="flex justify-center"><canvas id="chartAgreement" width="280" height="280"></canvas></div>
-        </div>
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-800 text-sm mb-1">Confidence Score Distribution</h3>
-          <p class="text-xs text-slate-500 mb-4">Average confidence levels across claim types</p>
-          <canvas id="chartConfidence" height="280"></canvas>
-        </div>
-      </div>
-      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-        <h3 class="font-bold text-slate-800 text-sm mb-1">Fraud Anomaly Trends</h3>
-        <p class="text-xs text-slate-500 mb-4">SHA-256 duplicate flags and date contradiction flags — Last 12 months</p>
-        <canvas id="chartFraud" height="100"></canvas>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════
-         PAGE 4: AUDIT REPORTS
-    ══════════════════════════════════════════════ -->
-    <div id="page-audit" class="page flex-1 overflow-y-auto p-6 bg-slate-50">
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 class="font-bold text-slate-900">Audit Report Log</h2>
-          <button class="bg-navy text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-700 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Export PDF
-          </button>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead><tr class="bg-slate-50 text-xs text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
-              <th class="px-5 py-3 text-left">Claim ID</th>
-              <th class="px-5 py-3 text-left">Customer</th>
-              <th class="px-5 py-3 text-left">Product</th>
-              <th class="px-5 py-3 text-left">AI Decision</th>
-              <th class="px-5 py-3 text-left">Reviewer Decision</th>
-              <th class="px-5 py-3 text-left">Date</th>
-              <th class="px-5 py-3 text-left">Action</th>
-            </tr></thead>
-            <tbody class="divide-y divide-slate-100" id="auditTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /main area -->
-</div><!-- /shell -->
-
-
-<!-- ═══════════════════════════════════
-     MODAL #1: Deep Inspection
-═══════════════════════════════════ -->
-<div id="modal1" class="modal-overlay">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 flex-shrink-0">
-      <div>
-        <h2 class="font-bold text-slate-900 text-base">More Details & Deep Inspection</h2>
-        <p id="modal1-subtitle" class="text-xs text-slate-500 mt-0.5"></p>
-      </div>
-      <button onclick="closeModal1()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <!-- Modal 1 Tabs -->
-    <div class="flex gap-1 px-6 pt-3 border-b border-slate-200 flex-shrink-0">
-      <button class="tab-btn active text-sm font-semibold text-slate-700 px-4 py-2.5 hover:text-sky-600" onclick="switchModal1Tab('m1-meta', this)">Full Claim Metadata</button>
-      <button class="tab-btn text-sm font-semibold text-slate-500 px-4 py-2.5 hover:text-sky-600" onclick="switchModal1Tab('m1-docs', this)">Raw Document Viewer</button>
-      <button class="tab-btn text-sm font-semibold text-slate-500 px-4 py-2.5 hover:text-sky-600" onclick="switchModal1Tab('m1-rules', this)">Rule Engine Checklist</button>
-    </div>
-    <div class="flex-1 overflow-y-auto p-6">
-      <!-- Tab: Metadata -->
-      <div id="m1-meta" class="m1-tab-content space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
-            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Customer Contact</h4>
-            <div class="space-y-2 text-sm">
-              <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Name</span><span id="m1-name" class="font-semibold text-slate-800"></span></div>
-              <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Phone</span><span id="m1-phone" class="text-slate-700"></span></div>
-              <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Email</span><span id="m1-email" class="text-sky-600"></span></div>
-              <div class="flex gap-2"><span class="text-slate-400 w-24 flex-shrink-0">Address</span><span id="m1-address" class="text-slate-700 leading-snug"></span></div>
-            </div>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
-            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Purchase Timeline</h4>
-            <div class="space-y-2 text-sm">
-              <div class="flex gap-2"><span class="text-slate-400 w-28 flex-shrink-0">Purchase Date</span><span id="m1-purchase" class="font-semibold text-slate-800"></span></div>
-              <div class="flex gap-2"><span class="text-slate-400 w-28 flex-shrink-0">Invoice #</span><span id="m1-invoice" class="font-mono text-slate-800"></span></div>
-              <div class="flex gap-2"><span class="text-slate-400 w-28 flex-shrink-0">Store</span><span id="m1-store" class="text-slate-700"></span></div>
-              <div class="flex gap-2"><span class="text-slate-400 w-28 flex-shrink-0">Warranty End</span><span id="m1-warranty-end" class="font-semibold text-emerald-600"></span></div>
-            </div>
-          </div>
-        </div>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Fault Submission Details</h4>
-          <p id="m1-fault" class="text-sm text-slate-700 leading-relaxed"></p>
-          <div class="mt-2 flex gap-2">
-            <span id="m1-fault-date" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold"></span>
-          </div>
-        </div>
-      </div>
-      <!-- Tab: Docs -->
-      <div id="m1-docs" class="m1-tab-content hidden">
-        <div class="grid grid-cols-3 gap-4">
-          <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-sky-400 cursor-pointer transition">
-            <div class="h-32 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-              <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            </div>
-            <div class="p-3"><p class="text-xs font-semibold text-slate-700">Invoice Receipt</p><span class="text-[10px] text-emerald-600 font-mono">SHA256: 8f4e..9b2a</span></div>
-          </div>
-          <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-sky-400 cursor-pointer transition">
-            <div class="h-32 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-              <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/></svg>
-            </div>
-            <div class="p-3"><p class="text-xs font-semibold text-slate-700">Warranty Card</p><span class="text-[10px] text-emerald-600 font-mono">SHA256: 3c21..1a7f</span></div>
-          </div>
-          <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-sky-400 cursor-pointer transition">
-            <div class="h-32 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-              <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-            <div class="p-3"><p class="text-xs font-semibold text-slate-700">Fault Photos</p><span class="text-[10px] text-emerald-600 font-mono">SHA256: d510..4e6c</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Tab: Rules -->
-      <div id="m1-rules" class="m1-tab-content hidden space-y-3">
-        <div class="border border-emerald-200 bg-emerald-50 rounded-xl p-4 flex items-start gap-3">
-          <div class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>
-          <div><p class="text-sm font-semibold text-emerald-800">Rule 1: Warranty Period Check</p><p class="text-xs text-emerald-700 mt-0.5">Purchase date is within the active warranty window (Jan 15, 2024 → Jan 15, 2025). Status: PASS</p></div>
-        </div>
-        <div class="border border-amber-200 bg-amber-50 rounded-xl p-4 flex items-start gap-3">
-          <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
-          <div><p class="text-sm font-semibold text-amber-800">Rule 2: Document Clarity Check</p><p class="text-xs text-amber-700 mt-0.5">Invoice image resolution is below 300 DPI threshold. Manual review of original document recommended. Status: WARN</p></div>
-        </div>
-        <div class="border border-rose-200 bg-rose-50 rounded-xl p-4 flex items-start gap-3">
-          <div class="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
-          <div><p class="text-sm font-semibold text-rose-800">Rule 3: Duplicate Serial Number Flag</p><p class="text-xs text-rose-700 mt-0.5">Serial SN 358274065832741 was found in CLM-1001 and CLM-1008. Possible duplicate claim. Status: FAIL</p></div>
-        </div>
-        <div class="border border-emerald-200 bg-emerald-50 rounded-xl p-4 flex items-start gap-3">
-          <div class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>
-          <div><p class="text-sm font-semibold text-emerald-800">Rule 4: SHA-256 Invoice Hash Integrity</p><p class="text-xs text-emerald-700 mt-0.5">Invoice hash (8f4e...9b2a) is unique in the database. No prior usage detected. Status: PASS</p></div>
-        </div>
-      </div>
-    </div>
-    <div class="flex justify-between gap-3 px-6 py-4 border-t border-slate-200 flex-shrink-0">
-      <button onclick="closeModal1()" class="px-5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">Close</button>
-      <button onclick="closeModal1(); openModal2();" class="px-5 py-2.5 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-slate-700 transition flex items-center gap-2">
-        Open Decision Panel
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </button>
-    </div>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════
-     MODAL #2: Reviewer Decision
-═══════════════════════════════════ -->
-<div id="modal2" class="modal-overlay">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-      <div>
-        <h2 class="font-bold text-slate-900 text-base">Reviewer Action & Override</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Your decision will be locked and appended to the immutable audit trail.</p>
-      </div>
-      <button onclick="closeModal2()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div class="p-6 space-y-5">
-      <!-- Action Buttons -->
-      <div>
-        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block">Select Decision</label>
-        <div class="grid grid-cols-2 gap-2 action-btn-group" id="decisionBtns">
-          <button onclick="selectDecision('approve', this)" class="flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition" style="background:#10b981">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-            Approve
-          </button>
-          <button onclick="selectDecision('reject', this)" class="flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 border-rose-500 text-rose-500 hover:bg-rose-50 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-            Reject
-          </button>
-          <button onclick="selectDecision('request', this)" class="flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 border-sky-500 text-sky-600 hover:bg-sky-50 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-            Request Information
-          </button>
-          <button onclick="selectDecision('override', this)" class="flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 border-purple-500 text-purple-600 hover:bg-purple-50 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            Override AI
-          </button>
-        </div>
-      </div>
-      <!-- Reason Textarea -->
-      <div>
-        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Reason for Decision <span class="text-rose-500">*</span></label>
-        <textarea id="decisionReason" rows="4" maxlength="500" placeholder="Enter mandatory reason for your decision (min 20 characters required)..."
-                  class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-sky-400 resize-none"
-                  oninput="updateCharCount()"></textarea>
-        <div class="flex justify-between text-xs text-slate-400 mt-1">
-          <span id="charCountMsg">Minimum 20 characters required.</span>
-          <span id="charCount">0 / 500</span>
-        </div>
-      </div>
-      <!-- Submit -->
-      <button onclick="submitDecision()" class="w-full py-3 rounded-xl font-bold text-sm text-white transition flex items-center justify-center gap-2" style="background:linear-gradient(135deg,#0f172a,#334155)">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        Submit Decision & Lock Audit Trail
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════
-     JAVASCRIPT ENGINE
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ── MOCK DATA ──────────────────────────────────────────────────────────────
-const claimsData = [
+// ═══════════════════════════════════════════════
+// MOCK DATA
+// ═══════════════════════════════════════════════
+const claimsDB = [
   {
-    id: 'CLM-1001', category: 'Smartphone', date: 'Aug 20, 2025', time: '10:24 AM', status: 'Manual Review',
-    customer: { name: 'Ayesha Khan', phone: '+92 301 8821004', email: 'ayesha.khan@gmail.com', address: 'H# 142, DHA Phase 5, Lahore, Pakistan' },
-    product: { name: 'Samsung Galaxy S23', model: 'SM-S911B', serial: 'SN 358274065832741', category: 'Smartphone' },
-    fault: 'Phone not turning on suddenly.', faultFull: 'The phone stopped turning on completely after the last software update. Battery was fully charged at the time. Tried hard reset (Volume Down + Power), no response from device at all.',
-    faultDate: 'Aug 18, 2025',
-    ocr: { invoice: 'INV-458712', purchaseDate: 'Jan 15, 2024', serial: 'S/N 358274065832741', amount: 'PKR 89,999', warranty: '1 Year', status: 'Verified' },
-    store: 'TechMart Pro Electronics',
-    warrantyEnd: 'Jan 15, 2025',
-    docs: ['Purchase Receipt (Valid)', 'Warranty Card (Valid)', 'Customer ID (Valid)', 'Product Photos (Valid)'],
-    ai: { python: { valid: 82, manual: 12, invalid: 6 }, teachable: { valid: 76, manual: 18, invalid: 6 } },
-    comparison: { match: 'Mismatch', diff: '6%', consistent: 'Yes' },
-    warranty_result: 'Covered',
-    issues: ['Missing Documents', 'Contradictions', 'Duplicate Indicators'],
-    auditLog: [
-      { text: 'AI (Python) Result — Valid (82%) | Manual (12%) | Invalid (6%)', date: 'Aug 20, 2025 • 10:24 AM' },
-      { text: 'AI (TM) Result — Valid (76%) | Manual (18%) | Invalid (8%)', date: 'Aug 20, 2025 • 10:25 AM' },
-      { text: 'Model Comparison — Mismatch | 6% difference | Consistent: Yes', date: 'Aug 20, 2025 • 10:25 AM' },
-      { text: 'Reviewer Decision — Pending', date: '—', pending: true },
-    ]
+    id:'CLM-1001', serial:'SN-358274065832741', date:'2025-08-20T10:24', category:'Health', status:'Pending',
+    customer:{ name:'Ayesha Khan', cid:'CUST-8821', phone:'+92 301 8821004', email:'ayesha.khan@gmail.com', address:'H# 142, DHA Phase 5, Lahore' },
+    policy:'POL-HLT-44210', product:'Samsung Galaxy S23', purchase:'Jan 15, 2024', warrantyEnd:'Jan 15, 2025', amount:'PKR 89,999',
+    fault:'Phone not turning on suddenly', faultDate:'Aug 18, 2025',
+    ai:{ pyResult:'Valid (82%)', tmResult:'Manual Review (18%)', match:'Mismatch', riskScore:42, riskLabel:'Medium Risk', riskClass:'risk-medium' },
+    ocr:{ invoice:'INV-458712', date:'Jan 15, 2024', serial:'SN358274065832741', amount:'PKR 89,999', warranty:'1 Year' },
+    aiIssues:['⚠ Purchase receipt clarity is below threshold', '⚠ Fault date is 3 days after purchase date contradiction detected', '🔴 Same serial number found in CLM-1008 (duplicate indicator)'],
+    auditLog:[ { ts:'Aug 20, 2025 10:24', txt:'AI (Python) → Valid 82%, Manual 12%, Invalid 6%' }, { ts:'Aug 20, 2025 10:25', txt:'AI (TM) → Valid 76%, Manual 18%, Invalid 6%' }, { ts:'Aug 20, 2025 10:25', txt:'Model Comparison → Mismatch, 6% diff' }, { ts:'Pending', txt:'Reviewer Decision — Awaiting', pending:true } ]
   },
   {
-    id: 'CLM-1008', category: 'Laptop', date: 'Aug 19, 2025', time: '03:15 PM', status: 'Manual Review',
-    customer: { name: 'Bilal Rauf', phone: '+92 333 4412289', email: 'bilal.rauf@outlook.com', address: 'Apt 7C, Gulberg III, Lahore, Pakistan' },
-    product: { name: 'Dell XPS 15 9530', model: 'XPS-9530', serial: 'DEL-XPS-99021A', category: 'Laptop' },
-    fault: 'Screen flickering and random shutdowns.', faultFull: 'The laptop screen shows vertical lines and flickers every 5–10 minutes. The device also shuts down randomly without warning, even when battery is above 60%. Suspected GPU or cooling issue.',
-    faultDate: 'Aug 17, 2025',
-    ocr: { invoice: 'INV-110293', purchaseDate: 'Mar 10, 2025', serial: 'DEL-XPS-99021A', amount: 'PKR 385,000', warranty: '2 Years', status: 'Verified' },
-    store: 'Dell Official Store',
-    warrantyEnd: 'Mar 10, 2027',
-    docs: ['Purchase Receipt (Valid)', 'Warranty Card (Valid)', 'Product Photos (Valid)'],
-    ai: { python: { valid: 71, manual: 24, invalid: 5 }, teachable: { valid: 68, manual: 28, invalid: 4 } },
-    comparison: { match: 'Match', diff: '4%', consistent: 'Yes' },
-    warranty_result: 'Covered',
-    issues: ['Missing Documents'],
-    auditLog: [
-      { text: 'AI (Python) Result — Valid (71%) | Manual (24%) | Invalid (5%)', date: 'Aug 19, 2025 • 03:15 PM' },
-      { text: 'AI (TM) Result — Valid (68%) | Manual (28%) | Invalid (4%)', date: 'Aug 19, 2025 • 03:16 PM' },
-      { text: 'Model Comparison — Match | 4% difference | Consistent: Yes', date: 'Aug 19, 2025 • 03:16 PM' },
-      { text: 'Reviewer Decision — Pending', date: '—', pending: true },
-    ]
+    id:'CLM-1008', serial:'DEL-XPS-99021A', date:'2025-08-19T15:15', category:'General', status:'Info Requested',
+    customer:{ name:'Bilal Rauf', cid:'CUST-3312', phone:'+92 333 4412289', email:'bilal.rauf@outlook.com', address:'Apt 7C, Gulberg III, Lahore' },
+    policy:'POL-GEN-21000', product:'Dell XPS 15 9530', purchase:'Mar 10, 2025', warrantyEnd:'Mar 10, 2027', amount:'PKR 385,000',
+    fault:'Screen flickering and random shutdowns', faultDate:'Aug 17, 2025',
+    ai:{ pyResult:'Valid (71%)', tmResult:'Manual Review (28%)', match:'Match', riskScore:28, riskLabel:'Low Risk', riskClass:'risk-low' },
+    ocr:{ invoice:'INV-110293', date:'Mar 10, 2025', serial:'DEL-XPS-99021A', amount:'PKR 385,000', warranty:'2 Years' },
+    aiIssues:['✅ Documents appear valid and high-resolution', '⚠ Minor date inconsistency in warranty card', '✅ Serial number is unique in database'],
+    auditLog:[ { ts:'Aug 19, 2025 15:15', txt:'AI (Python) → Valid 71%, Manual 24%, Invalid 5%' }, { ts:'Aug 19, 2025 15:16', txt:'Reviewer → Info Requested', pending:false } ]
   },
   {
-    id: 'CLM-1012', category: 'AC', date: 'Aug 19, 2025', time: '11:42 AM', status: 'Manual Review',
-    customer: { name: 'Sara Iqbal', phone: '+92 321 7119900', email: 's.iqbal@yahoo.com', address: '22 Model Town, Lahore, Pakistan' },
-    product: { name: 'Daikin Split AC 1.5T', model: 'FTKF50TV', serial: 'DK-AC-551188B', category: 'AC' },
-    fault: 'AC stops cooling after 20 mins, E1 error.', faultFull: 'The air conditioner runs for approximately 20 minutes then stops cooling. The outdoor unit compressor makes a loud clicking noise before shutting off. E1 error code persists on the remote display panel.',
-    faultDate: 'Aug 16, 2025',
-    ocr: { invoice: 'INV-77841', purchaseDate: 'Jun 05, 2024', serial: 'DK-AC-551188B', amount: 'PKR 145,000', warranty: '1 Year', status: 'Unverified' },
-    store: 'HomeAppliances World',
-    warrantyEnd: 'Jun 05, 2025',
-    docs: ['Purchase Receipt (Invalid)', 'Warranty Card (Valid)', 'Product Photos (Valid)'],
-    ai: { python: { valid: 45, manual: 35, invalid: 20 }, teachable: { valid: 38, manual: 42, invalid: 20 } },
-    comparison: { match: 'Mismatch', diff: '7%', consistent: 'No' },
-    warranty_result: 'Expired',
-    issues: ['Missing Documents', 'Contradictions'],
-    auditLog: [
-      { text: 'AI (Python) Result — Valid (45%) | Manual (35%) | Invalid (20%)', date: 'Aug 19, 2025 • 11:42 AM' },
-      { text: 'AI (TM) Result — Valid (38%) | Manual (42%) | Invalid (20%)', date: 'Aug 19, 2025 • 11:43 AM' },
-      { text: 'Model Comparison — Mismatch | 7% difference | Consistent: No', date: 'Aug 19, 2025 • 11:43 AM' },
-      { text: 'Reviewer Decision — Pending', date: '—', pending: true },
-    ]
+    id:'CLM-1012', serial:'DK-AC-551188B', date:'2025-08-19T11:42', category:'Property', status:'Rejected',
+    customer:{ name:'Sara Iqbal', cid:'CUST-7710', phone:'+92 321 7119900', email:'s.iqbal@yahoo.com', address:'22 Model Town, Lahore' },
+    policy:'POL-PRP-90012', product:'Daikin Split AC 1.5T', purchase:'Jun 05, 2024', warrantyEnd:'Jun 05, 2025', amount:'PKR 145,000',
+    fault:'AC stops cooling after 20 mins, E1 error', faultDate:'Aug 16, 2025',
+    ai:{ pyResult:'Invalid (45%)', tmResult:'Manual Review (42%)', match:'Mismatch', riskScore:78, riskLabel:'High Risk', riskClass:'risk-high' },
+    ocr:{ invoice:'INV-77841', date:'Jun 05, 2024', serial:'DK-AC-551188B', amount:'PKR 145,000', warranty:'1 Year (Expired)' },
+    aiIssues:['🔴 Warranty has expired — claim period exceeded by 72 days', '🔴 Invoice image unreadable — OCR confidence below 55%', '⚠ Fault description lacks specific technical details'],
+    auditLog:[ { ts:'Aug 19, 2025 11:42', txt:'AI → Invalid (45%), High Risk flagged' }, { ts:'Aug 19, 2025 12:01', txt:'Reviewer → Rejected. Warranty expired.' } ]
   },
   {
-    id: 'CLM-1016', category: 'Refrigerator', date: 'Aug 18, 2025', time: '04:20 PM', status: 'Manual Review',
-    customer: { name: 'Omar Farooq', phone: '+92 300 9944221', email: 'ofarooq@gmail.com', address: 'H# 9, Johar Town, Lahore, Pakistan' },
-    product: { name: 'LG InstaView Door-in-Door', model: 'LRMVS3006S', serial: 'LG-REF-44291X', category: 'Refrigerator' },
-    fault: 'Compressor not running, temperature rising.', faultFull: 'The refrigerator display shows correct temperature settings but the interior is warming. The compressor does not engage at all. Ice maker has also stopped producing ice. Error code 22 is flashing on the display.',
-    faultDate: 'Aug 15, 2025',
-    ocr: { invoice: 'INV-30291', purchaseDate: 'Oct 10, 2024', serial: 'LG-REF-44291X', amount: 'PKR 259,000', warranty: '2 Years', status: 'Verified' },
-    store: 'LG Authorized Dealer',
-    warrantyEnd: 'Oct 10, 2026',
-    docs: ['Purchase Receipt (Valid)', 'Warranty Card (Valid)', 'Product Photos (Valid)', 'Customer ID (Valid)'],
-    ai: { python: { valid: 88, manual: 8, invalid: 4 }, teachable: { valid: 85, manual: 10, invalid: 5 } },
-    comparison: { match: 'Match', diff: '3%', consistent: 'Yes' },
-    warranty_result: 'Covered',
-    issues: ['Duplicate Indicators'],
-    auditLog: [
-      { text: 'AI (Python) Result — Valid (88%) | Manual (8%) | Invalid (4%)', date: 'Aug 18, 2025 • 04:20 PM' },
-      { text: 'AI (TM) Result — Valid (85%) | Manual (10%) | Invalid (5%)', date: 'Aug 18, 2025 • 04:21 PM' },
-      { text: 'Model Comparison — Match | 3% difference | Consistent: Yes', date: 'Aug 18, 2025 • 04:21 PM' },
-      { text: 'Reviewer Decision — Pending', date: '—', pending: true },
-    ]
+    id:'CLM-1016', serial:'LG-REF-44291X', date:'2025-08-18T16:20', category:'Auto', status:'Approved',
+    customer:{ name:'Omar Farooq', cid:'CUST-5501', phone:'+92 300 9944221', email:'ofarooq@gmail.com', address:'H# 9, Johar Town, Lahore' },
+    policy:'POL-AUT-11820', product:'LG InstaView Refrigerator', purchase:'Oct 10, 2024', warrantyEnd:'Oct 10, 2026', amount:'PKR 259,000',
+    fault:'Compressor not running, temperature rising', faultDate:'Aug 15, 2025',
+    ai:{ pyResult:'Valid (88%)', tmResult:'Valid (85%)', match:'Match', riskScore:14, riskLabel:'Low Risk', riskClass:'risk-low' },
+    ocr:{ invoice:'INV-30291', date:'Oct 10, 2024', serial:'LG-REF-44291X', amount:'PKR 259,000', warranty:'2 Years' },
+    aiIssues:['✅ All documents verified and authentic', '✅ Serial number unique, warranty active', '✅ Both AI models agree — high confidence claim'],
+    auditLog:[ { ts:'Aug 18, 2025 16:20', txt:'AI → Valid (88%), Match, Low Risk' }, { ts:'Aug 18, 2025 17:00', txt:'Reviewer → Approved. Covered under warranty.' } ]
   },
   {
-    id: 'CLM-1020', category: 'Washing Machine', date: 'Aug 18, 2025', time: '01:05 PM', status: 'Manual Review',
-    customer: { name: 'Fatima Noor', phone: '+92 311 5544332', email: 'fatima.noor@hotmail.com', address: 'B-12, North Nazimabad, Karachi, Pakistan' },
-    product: { name: 'Samsung Front Loader WM', model: 'WF50BG8300AV', serial: 'WM-SA-20918C', category: 'Washing Machine' },
-    fault: 'Drum not spinning, error code dC.', faultFull: 'The washing machine fills with water and agitates briefly but the drum does not spin during the wash cycle. Error code "dC" appears on the panel. Suspected door lock sensor or drum belt issue.',
-    faultDate: 'Aug 14, 2025',
-    ocr: { invoice: 'INV-88210', purchaseDate: 'Dec 05, 2024', serial: 'WM-SA-20918C', amount: 'PKR 120,500', warranty: '2 Years', status: 'Verified' },
-    store: 'Samsung Experience Store',
-    warrantyEnd: 'Dec 05, 2026',
-    docs: ['Purchase Receipt (Valid)', 'Warranty Card (Valid)', 'Product Photos (Valid)'],
-    ai: { python: { valid: 79, manual: 15, invalid: 6 }, teachable: { valid: 74, manual: 20, invalid: 6 } },
-    comparison: { match: 'Mismatch', diff: '5%', consistent: 'Yes' },
-    warranty_result: 'Covered',
-    issues: ['Missing Documents', 'Contradictions'],
-    auditLog: [
-      { text: 'AI (Python) Result — Valid (79%) | Manual (15%) | Invalid (6%)', date: 'Aug 18, 2025 • 01:05 PM' },
-      { text: 'AI (TM) Result — Valid (74%) | Manual (20%) | Invalid (6%)', date: 'Aug 18, 2025 • 01:06 PM' },
-      { text: 'Model Comparison — Mismatch | 5% difference | Consistent: Yes', date: 'Aug 18, 2025 • 01:06 PM' },
-      { text: 'Reviewer Decision — Pending', date: '—', pending: true },
-    ]
+    id:'CLM-1020', serial:'WM-SA-20918C', date:'2025-08-18T13:05', category:'Health', status:'Overridden',
+    customer:{ name:'Fatima Noor', cid:'CUST-9920', phone:'+92 311 5544332', email:'fatima.noor@hotmail.com', address:'B-12, North Nazimabad, Karachi' },
+    policy:'POL-HLT-56010', product:'Samsung Front Load WM', purchase:'Dec 05, 2024', warrantyEnd:'Dec 05, 2026', amount:'PKR 120,500',
+    fault:'Drum not spinning, error code dC', faultDate:'Aug 14, 2025',
+    ai:{ pyResult:'Valid (79%)', tmResult:'Manual Review (20%)', match:'Mismatch', riskScore:55, riskLabel:'Medium Risk', riskClass:'risk-medium' },
+    ocr:{ invoice:'INV-88210', date:'Dec 05, 2024', serial:'WM-SA-20918C', amount:'PKR 120,500', warranty:'2 Years' },
+    aiIssues:['⚠ Model disagreement detected (5% confidence gap)', '✅ Invoice hash unique — no prior usage', '⚠ Fault description is vague, repair cost estimate needed'],
+    auditLog:[ { ts:'Aug 18, 2025 13:05', txt:'AI → Valid (79%), Mismatch, Medium Risk' }, { ts:'Aug 18, 2025 13:30', txt:'Reviewer → Overridden. Approved despite model disagreement.' } ]
+  },
+  {
+    id:'CLM-1025', serial:'HP-PRT-110293', date:'2025-08-17T09:10', category:'General', status:'Pending',
+    customer:{ name:'Zara Ahmed', cid:'CUST-1143', phone:'+92 315 6677889', email:'zara.a@techcorp.io', address:'7 Innovation Blvd, Islamabad' },
+    policy:'POL-GEN-30012', product:'HP LaserJet Pro MFP 4202dw', purchase:'Aug 12, 2025', warrantyEnd:'Aug 12, 2026', amount:'PKR 78,000',
+    fault:'Paper jam on every print job, error code 13.20', faultDate:'Aug 15, 2025',
+    ai:{ pyResult:'Valid (91%)', tmResult:'Valid (88%)', match:'Match', riskScore:10, riskLabel:'Low Risk', riskClass:'risk-low' },
+    ocr:{ invoice:'INV-99012', date:'Aug 12, 2025', serial:'HP-PRT-110293', amount:'PKR 78,000', warranty:'1 Year' },
+    aiIssues:['✅ New purchase — warranty clearly active', '✅ All documents high clarity, OCR confidence 95%+', '✅ No prior claims on this serial number'],
+    auditLog:[ { ts:'Aug 17, 2025 09:10', txt:'AI → Valid (91%), Match, Low Risk' }, { ts:'Pending', txt:'Reviewer Decision — Awaiting', pending:true } ]
   },
 ];
 
-const categoryIcons = {
-  'Smartphone': '📱', 'Laptop': '💻', 'AC': '❄️',
-  'Refrigerator': '🧊', 'Washing Machine': '🌀', 'Television': '📺',
-  'Microwave': '⚡', 'Printer': '🖨️'
-};
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let filtered = [...claimsDB];
+let sortField = 'date';
+let sortDir = 'desc';
+let page = 1;
+const perPage = 10;
+let activeClaim = null;
+let currentDecision = null;
+let chartsReady = false;
+let ocrScale = 1;
+let ocrRotation = 0;
 
-// ── STATE ──────────────────────────────────────────────────────────────────
-let activeClaim = claimsData[0];
-let selectedDecision = null;
-let chartsInitialized = false;
-
-// ── PAGE SWITCHING ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+// PAGE SWITCHING
+// ═══════════════════════════════════════════════
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.rp-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rp-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'analytics' && !chartsReady) { setTimeout(initCharts, 80); chartsReady = true; }
+}
 
-  const titles = {
-    dashboard: 'Reviewer Dashboard',
-    ocr: 'OCR Verification',
-    analytics: 'AI Analytics & Metrics',
-    audit: 'Audit Reports'
+// ═══════════════════════════════════════════════
+// BADGES
+// ═══════════════════════════════════════════════
+function statusBadge(s) {
+  const map = {
+    'Approved':'badge-approved','Rejected':'badge-rejected','Pending':'badge-pending',
+    'Info Requested':'badge-info-req','Overridden':'badge-overridden'
   };
-  document.getElementById('pageTitle').textContent = titles[name] || name;
+  const icons = { 'Approved':'fa-check','Rejected':'fa-xmark','Pending':'fa-clock','Info Requested':'fa-comment-dots','Overridden':'fa-lock' };
+  return `<span class="badge-pill ${map[s]||'badge-pending'}"><i class="fa fa-${icons[s]||'circle'}" style="font-size:9px;"></i> ${s}</span>`;
+}
+function catBadge(c) {
+  const map = { 'Health':'badge-cat-health','Auto':'badge-cat-auto','Property':'badge-cat-property','General':'badge-cat-general' };
+  return `<span class="badge-pill ${map[c]||'badge-cat-general'}">${c}</span>`;
+}
+function fmtDate(dt) {
+  const d = new Date(dt);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mo = d.toLocaleString('en',{month:'short'});
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  return { main: `${dd} ${mo} ${yyyy}`, time: `${hh}:${mm}` };
+}
 
-  if (name === 'analytics' && !chartsInitialized) {
-    setTimeout(initCharts, 100);
-    chartsInitialized = true;
+// ═══════════════════════════════════════════════
+// TABLE RENDER
+// ═══════════════════════════════════════════════
+function renderTable() {
+  const start = (page - 1) * perPage;
+  const pageData = filtered.slice(start, start + perPage);
+  const tbody = document.getElementById('tableBody');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa fa-inbox"></i><div>No claims match your filters.</div></div></td></tr>`;
+    document.getElementById('rowCount').textContent = '0 Claims';
+    document.getElementById('paginationInfo').textContent = '';
+    document.getElementById('paginationBtns').innerHTML = '';
+    return;
   }
-  if (name === 'audit') renderAuditTable();
+
+  tbody.innerHTML = pageData.map(c => {
+    const dt = fmtDate(c.date);
+    return `<tr>
+      <td><div class="date-main">${dt.main}</div><div class="date-time">${dt.time}</div></td>
+      <td>${catBadge(c.category)}</td>
+      <td><div class="sn-code">${c.id}</div><div class="date-time">${c.serial}</div></td>
+      <td><div class="cust-name">${c.customer.name}</div><div class="cust-id">${c.customer.cid}</div></td>
+      <td>${statusBadge(c.status)}</td>
+      <td><button class="view-btn" onclick="openModal('${c.id}')"><i class="fa fa-eye"></i> View Details</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('rowCount').textContent = `${filtered.length} Claim${filtered.length !== 1 ? 's' : ''}`;
+  renderPagination();
 }
 
-// ── QUEUE RENDERING ────────────────────────────────────────────────────────
-function renderQueue(data) {
-  const list = document.getElementById('claimsList');
-  list.innerHTML = data.map(c => `
-    <div class="claim-card mx-2 mb-1 rounded-xl p-3.5 border border-transparent ${activeClaim?.id === c.id ? 'active border-sky-300' : ''}"
-         onclick="selectClaim('${c.id}')">
-      <div class="flex items-center justify-between mb-1">
-        <span class="font-bold text-slate-900 text-sm font-mono">${c.id}</span>
-        <span class="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">Manual Review</span>
-      </div>
-      <div class="flex items-center gap-1.5 mb-1.5">
-        <span class="text-xs">${categoryIcons[c.category] || '📦'}</span>
-        <span class="text-xs font-semibold text-slate-600">${c.category}</span>
-      </div>
-      <div class="text-[11px] text-slate-400">${c.date} • ${c.time}</div>
-    </div>
-  `).join('');
+function renderPagination() {
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const start = (page - 1) * perPage + 1;
+  const end = Math.min(page * perPage, filtered.length);
+  document.getElementById('paginationInfo').textContent = `Showing ${start}–${end} of ${filtered.length}`;
+  const btns = document.getElementById('paginationBtns');
+  btns.innerHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    btns.innerHTML += `<button class="pg-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
 }
 
-function filterQueue(type, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const data = type === 'all' || type === 'manual' ? claimsData : [];
-  renderQueue(data);
-}
+function goPage(p) { page = p; renderTable(); }
 
-function selectClaim(id) {
-  activeClaim = claimsData.find(c => c.id === id);
-  renderQueue(claimsData);
-  renderColB();
-  renderColC();
-}
+// ═══════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('filterCat').value;
+  const status = document.getElementById('filterStatus').value;
+  const from = document.getElementById('filterDateFrom').value;
+  const to = document.getElementById('filterDateTo').value;
 
-// ── COLUMN B: CLAIM DETAIL ─────────────────────────────────────────────────
-function renderColB() {
-  const c = activeClaim;
-  const barColor = v => v >= 70 ? '#10b981' : v >= 40 ? '#f59e0b' : '#f43f5e';
-
-  document.getElementById('claimDetailContent').innerHTML = `
-    <!-- Header -->
-    <div class="flex items-center gap-3 mb-4">
-      <span class="font-bold text-xl font-mono text-slate-900">${c.id}</span>
-      <span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Manual Review Required
-      </span>
-    </div>
-    <div class="flex gap-4 mb-4 text-sm text-slate-500">
-      <span>Customer: <strong class="text-slate-800">${c.customer.name}</strong></span>
-      <span>Product: <strong class="text-slate-800">${c.category} - ${c.product.name}</strong></span>
-      <span class="ml-auto text-xs">${c.date}</span>
-    </div>
-
-    <!-- Tabs -->
-    <div class="flex gap-1 border-b border-slate-200 mb-5">
-      <button class="tab-btn active text-sm font-semibold text-sky-600 px-4 py-2.5">Claim Details</button>
-      <button class="tab-btn text-sm font-semibold text-slate-500 px-4 py-2.5 border-b-2 border-transparent hover:text-sky-600 cursor-default">OCR Verification</button>
-      <button class="tab-btn text-sm font-semibold text-slate-500 px-4 py-2.5 border-b-2 border-transparent hover:text-sky-600 cursor-default">Documents & Evidence</button>
-    </div>
-
-    <!-- Claim Info Card -->
-    <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4 shadow-sm">
-      <h3 class="font-bold text-slate-900 text-sm mb-4">Claim Information</h3>
-      <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Claim ID</span><span class="font-semibold font-mono text-slate-900">${c.id}</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Customer Name</span><span class="font-semibold text-slate-900">${c.customer.name}</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Product Category</span><span class="text-slate-700">${c.category}</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Model</span><span class="text-slate-700">${c.product.name}</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Serial Number</span><span class="font-mono text-xs text-slate-700 mt-0.5">${c.product.serial}</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Fault Description</span><span class="text-slate-700">${c.fault}</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Claim Type</span><span class="text-slate-700">Warranty Claim</span></div>
-        <div class="flex gap-3"><span class="text-slate-400 w-36 flex-shrink-0">Submission Date</span><span class="text-slate-700">${c.date} • ${c.time}</span></div>
-      </div>
-      <div class="mt-4 pt-4 border-t border-slate-100 flex justify-end">
-        <button onclick="openModal1()" class="text-sky-600 font-semibold text-sm flex items-center gap-1.5 hover:text-sky-700 transition">
-          View All Details
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- OCR Summary -->
-    <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4 shadow-sm">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-          <span class="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
-            <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-          </span>
-          OCR Verification
-        </h3>
-        <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">● ${c.ocr.status}</span>
-      </div>
-      <div class="grid grid-cols-4 gap-4 text-sm mb-4">
-        <div><p class="text-slate-400 text-xs mb-1">Invoice Number</p><p class="font-semibold text-slate-800">${c.ocr.invoice}</p></div>
-        <div><p class="text-slate-400 text-xs mb-1">Purchase Date</p><p class="font-semibold text-slate-800">${c.ocr.purchaseDate}</p></div>
-        <div><p class="text-slate-400 text-xs mb-1">Serial Number (OCR)</p><p class="font-semibold text-slate-800 text-xs font-mono">${c.ocr.serial}</p></div>
-        <div><p class="text-slate-400 text-xs mb-1">Invoice Amount</p><p class="font-semibold text-slate-800">${c.ocr.amount}</p></div>
-      </div>
-      <div class="flex items-center justify-between">
-        <div><p class="text-slate-400 text-xs mb-1">Warranty Period</p><p class="font-semibold text-slate-800">${c.ocr.warranty}</p></div>
-        <button class="text-sky-600 font-semibold text-sm flex items-center gap-1.5 hover:text-sky-700 transition" onclick="showPage('ocr')">
-          View Full OCR Data
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Uploaded Docs -->
-    <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4 shadow-sm">
-      <h3 class="font-bold text-slate-900 text-sm mb-4">Uploaded Documents</h3>
-      <div class="flex flex-wrap gap-3">
-        ${c.docs.map(d => {
-          const valid = d.includes('Valid');
-          const invalid = d.includes('Invalid');
-          return `<div class="flex items-center gap-2 border rounded-xl px-3 py-2.5 ${invalid ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-slate-50'}">
-            <svg class="w-4 h-4 ${invalid ? 'text-rose-400' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span class="text-xs font-semibold ${invalid ? 'text-rose-700' : 'text-slate-700'}">${d.split(' (')[0]}</span>
-            <span class="text-[10px] font-bold ${invalid ? 'text-rose-500' : 'text-emerald-500'} flex items-center gap-0.5">
-              ${invalid
-                ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg> Invalid'
-                : '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg> Valid'
-              }
-            </span>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-
-    <!-- AI Analysis Results -->
-    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-      <h3 class="font-bold text-slate-900 text-sm mb-5 flex items-center gap-2">
-        <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-        AI Analysis Results
-      </h3>
-      <div class="grid grid-cols-2 gap-6 mb-5">
-        <!-- Python ML -->
-        <div>
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center">⚙️</div>
-            <span class="text-xs font-bold text-slate-700">Python ML Model <span class="text-slate-400 font-normal">(Initial Prediction)</span></span>
-          </div>
-          <div class="space-y-2">
-            ${modelBar('Valid Claim', c.ai.python.valid, '#10b981')}
-            ${modelBar('Manual Review', c.ai.python.manual, '#f59e0b')}
-            ${modelBar('Invalid Claim', c.ai.python.invalid, '#f43f5e')}
-          </div>
-        </div>
-        <!-- TM -->
-        <div>
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-5 h-5 bg-purple-100 rounded flex items-center justify-center">🧠</div>
-            <span class="text-xs font-bold text-slate-700">Teachable Machine <span class="text-slate-400 font-normal">(Image/Document Classification)</span></span>
-          </div>
-          <div class="space-y-2">
-            ${modelBar('Valid Claim', c.ai.teachable.valid, '#10b981')}
-            ${modelBar('Manual Review', c.ai.teachable.manual, '#f59e0b')}
-            ${modelBar('Invalid Claim', c.ai.teachable.invalid, '#f43f5e')}
-          </div>
-        </div>
-      </div>
-
-      <!-- Model Comparison -->
-      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
-        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Model Comparison</h4>
-        <div class="grid grid-cols-3 gap-4 text-sm">
-          <div>
-            <p class="text-slate-400 text-xs mb-1">Match Status</p>
-            <p class="font-bold ${c.comparison.match === 'Mismatch' ? 'text-amber-600' : 'text-emerald-600'} flex items-center gap-1">
-              ${c.comparison.match === 'Mismatch'
-                ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>'
-                : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>'
-              }
-              ${c.comparison.match}
-            </p>
-          </div>
-          <div>
-            <p class="text-slate-400 text-xs mb-1">Confidence Difference</p>
-            <p class="font-bold text-slate-800 flex items-center gap-1">
-              <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              ${c.comparison.diff}
-            </p>
-          </div>
-          <div>
-            <p class="text-slate-400 text-xs mb-1">Consistency</p>
-            <p class="font-bold text-emerald-600 flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              ${c.comparison.consistent}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Warranty Rule -->
-      <div class="mt-3 border border-slate-200 rounded-xl p-4 bg-slate-50 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          <span class="text-sm font-semibold text-slate-700">Warranty Rule Result</span>
-        </div>
-        <span class="${c.warranty_result === 'Covered' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'} text-xs font-bold px-3 py-1 rounded-full">
-          ${c.warranty_result === 'Covered' ? '✓ ' : '✗ '} ${c.warranty_result}
-        </span>
-      </div>
-    </div>
-  `;
-}
-
-function modelBar(label, value, color) {
-  const label_color = color === '#10b981' ? 'text-emerald-600' : color === '#f59e0b' ? 'text-amber-600' : 'text-rose-600';
-  return `
-    <div class="flex items-center gap-2">
-      <span class="text-xs text-slate-500 w-24 flex-shrink-0">${label}</span>
-      <div class="flex-1 bg-slate-200 rounded-full h-2">
-        <div class="progress-bar h-2 rounded-full" style="background:${color}; width:${value}%"></div>
-      </div>
-      <span class="text-xs font-bold ${label_color} w-8 text-right">${value}%</span>
-    </div>`;
-}
-
-// ── COLUMN C: AI SUMMARY & DECISION ───────────────────────────────────────
-function renderColC() {
-  const c = activeClaim;
-  const issueDetails = {
-    'Missing Documents': 'Purchase receipt resolution / clarity issue.',
-    'Contradictions': 'Fault date is after purchase date.',
-    'Duplicate Indicators': 'Same serial number found in 2 claims.'
-  };
-  document.getElementById('colC').innerHTML = `
-    <!-- Final AI Summary -->
-    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center">🤖</div>
-          <span class="font-bold text-slate-800 text-sm">Final AI Summary</span>
-        </div>
-        <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Manual Review</span>
-      </div>
-      <p class="text-xs text-slate-600 leading-relaxed">Models disagree on the claim classification. Python predicts <strong>Valid (${c.ai.python.valid}%)</strong> while Teachable Machine predicts <strong>Manual Review (${c.ai.teachable.manual}%)</strong>.</p>
-    </div>
-
-    <!-- Key Issues -->
-    <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 shadow-sm">
-      <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        Key Issues
-      </h4>
-      <div class="space-y-2">
-        ${c.issues.map(issue => `
-          <div class="flex items-start gap-2.5 p-2.5 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer hover:border-slate-300 transition">
-            <span class="w-2 h-2 bg-rose-500 rounded-full mt-1.5 flex-shrink-0"></span>
-            <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-slate-800">${issue}</p>
-              <p class="text-[11px] text-slate-500 mt-0.5">${issueDetails[issue] || ''}</p>
-            </div>
-            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <!-- Reviewer Action -->
-    <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 shadow-sm">
-      <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        Reviewer Action
-      </h4>
-      <div class="grid grid-cols-2 gap-2 mb-3">
-        <button onclick="openModal2(); selectDecision('approve', null);" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition">
-          ✓ Approve
-        </button>
-        <button onclick="openModal2(); selectDecision('reject', null);" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 border-2 border-rose-400 hover:bg-rose-50 transition">
-          ✗ Reject
-        </button>
-        <button onclick="openModal2(); selectDecision('request', null);" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-sky-600 border-2 border-sky-400 hover:bg-sky-50 transition">
-          💬 Request Info
-        </button>
-        <button onclick="openModal2(); selectDecision('override', null);" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-purple-600 border-2 border-purple-400 hover:bg-purple-50 transition">
-          🔒 Override
-        </button>
-      </div>
-      <button onclick="openModal2()" class="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition flex items-center justify-center gap-1.5">
-        Open Decision Panel
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </button>
-      <!-- Reason Box -->
-      <div class="mt-3">
-        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Reason for Decision <span class="text-rose-500">*</span></label>
-        <textarea rows="2" class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 text-slate-700 resize-none focus:outline-none focus:border-sky-400" placeholder="Enter mandatory reason for your decision..."></textarea>
-        <div class="flex justify-end text-[10px] text-slate-400 mt-0.5">0/500</div>
-      </div>
-      <button class="w-full mt-2 py-2.5 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5" style="background:linear-gradient(135deg,#0f172a,#334155)">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        Submit Decision
-      </button>
-    </div>
-
-    <!-- Audit Trail -->
-    <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 shadow-sm">
-      <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Audit Trail <span class="text-[10px] text-slate-400">(Immutable)</span>
-      </h4>
-      <div class="space-y-2.5">
-        ${c.auditLog.map(entry => `
-          <div class="flex gap-2.5">
-            <div class="flex flex-col items-center">
-              <div class="w-2 h-2 ${entry.pending ? 'bg-amber-400' : 'bg-emerald-400'} rounded-full mt-1 flex-shrink-0"></div>
-              <div class="w-0.5 bg-slate-200 flex-1 mt-1"></div>
-            </div>
-            <div class="pb-2.5">
-              <p class="text-[11px] font-semibold ${entry.pending ? 'text-amber-600' : 'text-slate-700'}">${entry.text}</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">${entry.date}</p>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <!-- Download -->
-    <button class="w-full border border-slate-200 bg-white hover:bg-slate-50 rounded-xl py-2.5 text-xs font-bold text-slate-700 flex items-center justify-center gap-2 transition shadow-sm">
-      <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      Download PDF Audit Certificate
-    </button>
-  `;
-}
-
-// ── MODALS ─────────────────────────────────────────────────────────────────
-function openModal1() {
-  const c = activeClaim;
-  document.getElementById('modal1-subtitle').textContent = `${c.id} — ${c.customer.name} — ${c.product.name}`;
-  document.getElementById('m1-name').textContent = c.customer.name;
-  document.getElementById('m1-phone').textContent = c.customer.phone;
-  document.getElementById('m1-email').textContent = c.customer.email;
-  document.getElementById('m1-address').textContent = c.customer.address;
-  document.getElementById('m1-purchase').textContent = c.ocr.purchaseDate;
-  document.getElementById('m1-invoice').textContent = c.ocr.invoice;
-  document.getElementById('m1-store').textContent = c.store;
-  document.getElementById('m1-warranty-end').textContent = c.warrantyEnd;
-  document.getElementById('m1-fault').textContent = c.faultFull;
-  document.getElementById('m1-fault-date').textContent = 'Reported: ' + c.faultDate;
-  // Reset tabs
-  document.querySelectorAll('.m1-tab-content').forEach(t => t.classList.add('hidden'));
-  document.getElementById('m1-meta').classList.remove('hidden');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('modal1').classList.add('open');
-}
-function closeModal1() { document.getElementById('modal1').classList.remove('open'); }
-
-function switchModal1Tab(id, btn) {
-  document.querySelectorAll('.m1-tab-content').forEach(t => t.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  document.querySelectorAll('#modal1 .tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function openModal2() {
-  selectedDecision = null;
-  document.getElementById('decisionReason').value = '';
-  updateCharCount();
-  document.getElementById('modal2').classList.add('open');
-}
-function closeModal2() { document.getElementById('modal2').classList.remove('open'); }
-
-function selectDecision(type, btn) {
-  selectedDecision = type;
-  if (!btn) return;
-  const colors = { approve: ['#10b981','#ffffff'], reject: ['#f43f5e','#ffffff'], request: ['#0284c7','#ffffff'], override: ['#7c3aed','#ffffff'] };
-  document.querySelectorAll('#decisionBtns button').forEach(b => {
-    b.style.background = '';
-    b.style.color = '';
-    b.classList.remove('ring-2','ring-offset-2');
+  filtered = claimsDB.filter(c => {
+    const matchQ = !q || c.id.toLowerCase().includes(q) || c.customer.name.toLowerCase().includes(q) || c.serial.toLowerCase().includes(q);
+    const matchCat = !cat || c.category === cat;
+    const matchSt = !status || c.status === status;
+    const dt = c.date.substring(0,10);
+    const matchFrom = !from || dt >= from;
+    const matchTo = !to || dt <= to;
+    return matchQ && matchCat && matchSt && matchFrom && matchTo;
   });
-  btn.style.background = colors[type][0];
-  btn.style.color = colors[type][1];
+  sortData();
+  page = 1;
+  renderTable();
 }
 
-function updateCharCount() {
-  const len = document.getElementById('decisionReason').value.length;
-  document.getElementById('charCount').textContent = len + ' / 500';
-  document.getElementById('charCountMsg').textContent = len < 20 ? 'Minimum 20 characters required.' : '✓ Reason noted.';
-  document.getElementById('charCountMsg').className = len < 20 ? 'text-rose-500' : 'text-emerald-600';
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterCat').value = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  filtered = [...claimsDB];
+  sortData();
+  page = 1;
+  renderTable();
 }
 
-function submitDecision() {
-  const reason = document.getElementById('decisionReason').value.trim();
-  if (!selectedDecision) return alert('Please select a decision (Approve / Reject / etc.)');
-  if (reason.length < 20) return alert('Please enter at least 20 characters in the reason field.');
-  closeModal2();
-  alert(`✓ Decision submitted!\nClaim: ${activeClaim.id}\nDecision: ${selectedDecision.toUpperCase()}\nAudit trail has been locked.`);
+// ═══════════════════════════════════════════════
+// SORT
+// ═══════════════════════════════════════════════
+function sortBy(field) {
+  if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+  else { sortField = field; sortDir = 'desc'; }
+  document.querySelectorAll('.rp-table th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  const thEl = document.getElementById('th-' + field);
+  if (thEl) { thEl.classList.add('sort-' + sortDir); thEl.querySelector('.sort-icon').className = `fa fa-sort-${sortDir === 'asc' ? 'up' : 'down'} sort-icon`; }
+  sortData();
+  renderTable();
 }
 
-// ── AUDIT TABLE ────────────────────────────────────────────────────────────
-function renderAuditTable() {
-  const tbody = document.getElementById('auditTableBody');
-  tbody.innerHTML = claimsData.map(c => `
-    <tr class="hover:bg-slate-50 text-sm">
-      <td class="px-5 py-3 font-mono text-sky-700 font-semibold">${c.id}</td>
-      <td class="px-5 py-3 text-slate-800 font-semibold">${c.customer.name}</td>
-      <td class="px-5 py-3 text-slate-600">${c.product.name}</td>
-      <td class="px-5 py-3"><span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">Manual Review</span></td>
-      <td class="px-5 py-3"><span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-0.5 rounded-full">Pending</span></td>
-      <td class="px-5 py-3 text-slate-500 text-xs">${c.date}</td>
-      <td class="px-5 py-3">
-        <button onclick="selectClaim('${c.id}'); showPage('dashboard');" class="text-sky-600 font-semibold text-xs hover:text-sky-800 transition flex items-center gap-1">
-          Review <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </td>
-    </tr>
-  `).join('');
+function sortData() {
+  const fieldMap = { date:'date', category:'category', serial:'id', customer:'customer', status:'status' };
+  const key = fieldMap[sortField] || 'date';
+  filtered.sort((a, b) => {
+    let av = key === 'customer' ? a.customer.name : a[key];
+    let bv = key === 'customer' ? b.customer.name : b[key];
+    return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+  });
 }
 
-// ── CHARTS ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════
+function openModal(id) {
+  const c = claimsDB.find(x => x.id === id);
+  if (!c) return;
+  activeClaim = c;
+  currentDecision = c.status;
+  const dt = fmtDate(c.date);
+  document.getElementById('mdClaimId').textContent = c.id;
+  document.getElementById('mdDate').textContent = dt.main + ' ' + dt.time;
+  document.getElementById('mdCat').innerHTML = catBadge(c.category);
+  document.getElementById('mdStatus').innerHTML = statusBadge(c.status);
+  document.getElementById('mdCustName').textContent = c.customer.name;
+  document.getElementById('mdCustId').textContent = c.customer.cid;
+  document.getElementById('mdPhone').textContent = c.customer.phone;
+  document.getElementById('mdEmail').textContent = c.customer.email;
+  document.getElementById('mdAddress').textContent = c.customer.address;
+  document.getElementById('mdPolicy').textContent = c.policy;
+  document.getElementById('mdProduct').textContent = c.product;
+  document.getElementById('mdSerial').textContent = c.serial;
+  document.getElementById('mdPurchase').textContent = c.purchase;
+  document.getElementById('mdWarranty').textContent = c.warrantyEnd;
+  document.getElementById('mdAmount').textContent = c.amount;
+  document.getElementById('mdFault').textContent = c.fault;
+  document.getElementById('mdFaultDate').textContent = c.faultDate;
+  // AI
+  const ai = c.ai;
+  document.getElementById('mdRiskScore').textContent = ai.riskScore;
+  document.getElementById('mdRiskLabel').textContent = ai.riskLabel;
+  document.getElementById('mdRiskCircle').className = 'risk-gauge-circle ' + ai.riskClass;
+  document.getElementById('mdPyResult').textContent = ai.pyResult;
+  document.getElementById('mdTmResult').textContent = ai.tmResult;
+  document.getElementById('mdMatch').textContent = ai.match;
+  document.getElementById('mdAiBullets').innerHTML = c.aiIssues.map(i =>
+    `<div class="ai-bullet"><i class="fa fa-circle" style="color:${i.startsWith('✅')?'#10b981':i.startsWith('🔴')?'#ef4444':'#f59e0b'};"></i>${i}</div>`).join('');
+  // OCR
+  document.getElementById('mdOcrInvoice').textContent = c.ocr.invoice;
+  document.getElementById('mdOcrDate').textContent = c.ocr.date;
+  document.getElementById('mdOcrSerial').textContent = c.ocr.serial;
+  document.getElementById('mdOcrAmount').textContent = c.ocr.amount;
+  document.getElementById('mdOcrWarranty').textContent = c.ocr.warranty;
+  // Audit
+  document.getElementById('mdAuditTrail').innerHTML = c.auditLog.map(l => `
+    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:flex-start;">
+      <div style="width:8px; height:8px; border-radius:50%; background:${l.pending?'#f59e0b':'#10b981'}; flex-shrink:0; margin-top:3px;"></div>
+      <div>
+        <div style="font-weight:600; color:${l.pending?'#d97706':'#1e293b'};">${l.txt}</div>
+        <div style="color:#94a3b8; font-size:11px;">${l.ts}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('reviewerNotes').value = '';
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('open');
+  activeClaim = null;
+}
+
+// Close on backdrop click
+document.getElementById('detailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function quickAction(decision) {
+  currentDecision = decision;
+  document.getElementById('mdStatus').innerHTML = statusBadge(decision);
+  if (activeClaim) activeClaim.status = decision;
+  renderTable();
+  // Highlight quick action button
+  document.querySelectorAll('.qa-btn').forEach(b => b.style.opacity = '.5');
+  event.target.closest('.qa-btn').style.opacity = '1';
+}
+
+function saveRemarks() {
+  const notes = document.getElementById('reviewerNotes').value.trim();
+  if (!notes) return alert('Please enter remarks before saving.');
+  alert(`✅ Remarks saved for ${activeClaim?.id || 'claim'}.`);
+}
+
+function confirmDecision() {
+  const notes = document.getElementById('reviewerNotes').value.trim();
+  if (!notes) return alert('Reviewer remarks are required to confirm the decision.');
+  if (!currentDecision) return alert('Please select a decision (Approve, Reject, etc.)');
+  alert(`🔒 Decision "${currentDecision}" confirmed and Audit Trail locked for ${activeClaim?.id}.`);
+  closeModal();
+}
+
+// ═══════════════════════════════════════════════
+// OCR CONTROLS
+// ═══════════════════════════════════════════════
+function ocrZoomIn()  { ocrScale = Math.min(ocrScale + .15, 2); applyOcrTransform(); }
+function ocrZoomOut() { ocrScale = Math.max(ocrScale - .15, .5); applyOcrTransform(); }
+function ocrRotate()  { ocrRotation = (ocrRotation + 90) % 360; applyOcrTransform(); }
+function applyOcrTransform() {
+  document.getElementById('ocrPaper').style.transform = `scale(${ocrScale}) rotate(${ocrRotation}deg)`;
+}
+
+// ═══════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════
 function initCharts() {
-  // Donut: Agreement
+  // Donut
   new Chart(document.getElementById('chartAgreement'), {
     type: 'doughnut',
     data: {
-      labels: ['Both Agreed', 'Mismatch — Python Higher', 'Mismatch — TM Higher'],
-      datasets: [{ data: [62, 24, 14],
-        backgroundColor: ['#10b981','#f59e0b','#f43f5e'],
-        borderWidth: 0, hoverOffset: 4 }]
+      labels: ['Both Models Agreed', 'Python Higher', 'TM Model Higher'],
+      datasets: [{ data: [62, 24, 14], backgroundColor: ['#10b981','#f59e0b','#ef4444'], borderWidth: 0, hoverOffset: 4 }]
     },
-    options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } } }
+    options: { cutout: '68%', plugins: { legend: { position:'bottom', labels:{ font:{ size:11, family:'Inter' }, padding:14 } } } }
   });
 
   // Bar: Confidence
   new Chart(document.getElementById('chartConfidence'), {
     type: 'bar',
     data: {
-      labels: ['Smartphone','Laptop','AC','Refrigerator','Washing Machine'],
+      labels: ['Health', 'Auto', 'Property', 'General'],
       datasets: [
-        { label: 'Python ML Model', data: [82,71,45,88,79], backgroundColor: 'rgba(2,132,199,0.7)', borderRadius: 6 },
-        { label: 'Teachable Machine', data: [76,68,38,85,74], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6 }
+        { label:'Python ML', data:[82,88,45,91], backgroundColor:'rgba(2,132,199,.75)', borderRadius:6 },
+        { label:'Teachable Machine', data:[76,85,38,88], backgroundColor:'rgba(16,185,129,.75)', borderRadius:6 }
       ]
     },
-    options: { plugins: { legend: { labels: { font: { size: 11 } } } },
-      scales: { y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' }, ticks: { callback: v => v+'%' } },
-        x: { grid: { display: false } } } }
+    options: { plugins:{ legend:{ labels:{ font:{ size:11, family:'Inter' } } } }, scales:{ y:{ beginAtZero:true, max:100, grid:{ color:'#f1f5f9' }, ticks:{ callback:v=>v+'%', font:{ family:'Inter', size:11 } } }, x:{ grid:{ display:false }, ticks:{ font:{ family:'Inter', size:11 } } } } }
   });
 
   // Line: Fraud Trends
   new Chart(document.getElementById('chartFraud'), {
     type: 'line',
     data: {
-      labels: ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],
-      datasets: [
-        { label: 'SHA-256 Duplicate Flags', data: [3,5,4,8,6,9,7,11,10,14,12,16],
-          borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.08)', tension: 0.4, fill: true, pointRadius: 4 },
-        { label: 'Date Contradiction Flags', data: [2,4,3,5,4,7,5,8,7,10,9,12],
-          borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)', tension: 0.4, fill: true, pointRadius: 4 }
+      labels:['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],
+      datasets:[
+        { label:'SHA-256 Duplicate Flags', data:[3,5,4,8,6,9,7,11,10,14,12,16], borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,.07)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#ef4444' },
+        { label:'Date Contradiction Flags', data:[2,4,3,5,4,7,5,8,7,10,9,12], borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.07)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#f59e0b' }
       ]
     },
-    options: { plugins: { legend: { labels: { font: { size: 11 } } } },
-      scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-        x: { grid: { display: false } } } }
+    options: { plugins:{ legend:{ labels:{ font:{ size:11, family:'Inter' } } } }, scales:{ y:{ beginAtZero:true, grid:{ color:'#f1f5f9' }, ticks:{ font:{ family:'Inter', size:11 } } }, x:{ grid:{ display:false }, ticks:{ font:{ family:'Inter', size:11 } } } } }
+  });
+
+  // Doughnut: AI Recommendation Breakdown
+  new Chart(document.getElementById('chartReco'), {
+    type: 'doughnut',
+    data: {
+      labels:['Auto-Approved','Manual Review','Rejected'],
+      datasets:[{ data:[68, 22, 10], backgroundColor:['#10b981','#f59e0b','#ef4444'], borderWidth:0, hoverOffset:4 }]
+    },
+    options: { cutout:'60%', plugins:{ legend:{ position:'bottom', labels:{ font:{ size:10, family:'Inter' }, padding:8 } } } }
   });
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────────
-renderQueue(claimsData);
-renderColB();
-renderColC();
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+sortData();
+renderTable();
 </script>
 
 </body>

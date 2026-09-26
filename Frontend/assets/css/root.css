@@ -1,26 +1,252 @@
-/* assets/css/root.css */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+/* ═══════════════════════════════════════════════════════════════
+   AssureX_AI — root.css
+   ALL keyframes, CSS variables, transitions, glow effects,
+   neomorphic shadows, hover presets, custom scrollbar
+═══════════════════════════════════════════════════════════════ */
 
+/* ── Google Font ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ══════════════════════════════════════════
+   CSS CUSTOM PROPERTIES
+══════════════════════════════════════════ */
 :root {
-  --bg-off-white: #fcfbf7;
-  --bg-light-alt: #f4f3ed;
-  --card-bg-white: #ffffff;
-  --primary-olive: #3b4a3a;
-  --primary-olive-dark: #2c382b;
-  --accent-sage: #7a8f78;
-  --accent-warm-cream: #eef0eb;
-  --accent-gold: #d97706;
-  --text-dark: #1a202c;
-  --text-muted: #4a5568;
-  --border-light: #e2e8f0;
-  
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.02);
-  --shadow-md: 0 4px 20px rgba(0,0,0,0.05);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
-  
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  
-  --font-family: 'Plus Jakarta Sans', sans-serif;
-  --transition: all 0.3s ease-in-out;
+  /* Backgrounds */
+  --bg-base:          #FBF9F5;
+  --bg-alt:           #F3EFEA;
+  --bg-deep:          #EDE8DF;
+
+  /* Lavender Palette */
+  --lavender-deep:    #4f1515;
+  --lavender-mid:     #a75958;
+  --lavender-soft:    #E8E3FE;
+  --lavender-pale:    #F3F0FF;
+  --indigo-electric:  #13332d;
+  --indigo-dark:      #0a5c5f;
+
+  /* Semantic Colors */
+  --success:          #10B981;
+  --success-soft:     #D1FAE5;
+  --warning:          #F59E0B;
+  --warning-soft:     #FEF3C7;
+  --danger:           #EF4444;
+  --danger-soft:      #FEE2E2;
+  --info:             #0284C7;
+  --info-soft:        #DBEAFE;
+
+  /* Text */
+  --text-primary:     #1C1735;
+  --text-secondary:   #4B5563;
+  --text-muted:       #6B7280;
+  --text-on-lavender: #FFFFFF;
+
+  /* Type scale */
+  --text-h1:          clamp(2rem, 4vw, 2.875rem);
+  --text-h2:          clamp(1.5rem, 3vw, 2.125rem);
+  --text-h3:          clamp(1.125rem, 2vw, 1.375rem);
+  --text-body:        1rem;
+  --text-body-sm:     0.9375rem;
+  --text-caption:     0.8125rem;
+  --leading-tight:    1.2;
+  --leading-normal:   1.6;
+  --leading-relaxed:  1.7;
+  --tracking-tight:   -0.02em;
+  --tracking-wide:    0.04em;
+
+  /* Borders */
+  --border-light:     #E8E3FE;
+  --border-mid:       #D0C9F6;
+
+  /* Neomorphic Shadows — outset (raised) */
+  --neo-shadow-out:
+    6px 6px 14px rgba(155, 146, 182, 0.28),
+    -6px -6px 14px rgba(255, 255, 252, 0.92);
+
+  /* Neomorphic Shadows — inset (pressed / focus) */
+  --neo-shadow-in:
+    inset 4px 4px 10px rgba(155, 146, 182, 0.3),
+    inset -4px -4px 10px rgba(255, 255, 252, 0.9);
+
+  /* Neomorphic Shadows — card (larger) */
+  --neo-shadow-card:
+    10px 10px 24px rgba(155, 146, 182, 0.25),
+    -10px -10px 24px rgba(255, 255, 252, 0.95);
+
+  /* Neomorphic Shadows — hover elevation */
+  --neo-shadow-hover:
+    14px 14px 32px rgba(155, 146, 182, 0.32),
+    -14px -14px 32px rgba(255, 255, 252, 1);
+
+  /* Glassmorphism */
+  --glass-bg:         rgba(255, 255, 255, 0.55);
+  --glass-border:     rgba(255, 255, 255, 0.7);
+  --glass-blur:       blur(16px);
+
+  /* Glow Effects */
+  --glow-lavender:    0 0 20px rgba(124, 92, 252, 0.35), 0 0 40px rgba(124, 92, 252, 0.15);
+  --glow-indigo:      0 0 20px rgba(91, 57, 232, 0.4),   0 0 40px rgba(91, 57, 232, 0.18);
+  --glow-success:     0 0 16px rgba(16, 185, 129, 0.35);
+  --glow-warning:     0 0 16px rgba(245, 158, 11, 0.35);
+  --glow-danger:      0 0 16px rgba(239, 68, 68, 0.35);
+
+  /* Typography */
+  --font-main:        'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-mono:        'JetBrains Mono', 'Courier New', monospace;
+
+  /* Radius */
+  --radius-sm:        8px;
+  --radius-md:        14px;
+  --radius-lg:        20px;
+  --radius-xl:        28px;
+  --radius-full:      9999px;
+
+  /* Spacing Scale */
+  --space-1: 4px;   --space-2: 8px;  --space-3: 12px;
+  --space-4: 16px;  --space-5: 24px; --space-6: 32px;
+  --space-7: 48px;  --space-8: 64px; --space-9: 96px;
+
+  /* Transitions */
+  --ease-smooth:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
+  --transition-xs:  0.12s var(--ease-smooth);
+  --transition-sm:  0.2s  var(--ease-smooth);
+  --transition-md:  0.3s  var(--ease-smooth);
+  --transition-lg:  0.5s  var(--ease-smooth);
+  --transition-spring: 0.4s var(--ease-spring);
 }
+
+/* ══════════════════════════════════════════
+   @KEYFRAMES — All animations live here
+══════════════════════════════════════════ */
+
+/* ── Float / Bob (Robot Idle) ── */
+@keyframes floatBot {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-12px) rotate(2deg); }
+}
+
+/* ── Robot Cycling (Loading State) ── */
+@keyframes robotCycling {
+  0%   { left: -80px; }
+  100% { left: calc(100% + 10px); }
+}
+
+/* ── Pedaling Wheels ── */
+@keyframes pedalSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Speech Bubble Pop ── */
+@keyframes bubblePop {
+  0%   { transform: scale(0.5) translateY(6px); opacity: 0; }
+  70%  { transform: scale(1.05) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ── Fade In Up ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Fade In ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Slide In Left ── */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Slide In Right ── */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Scale In ── */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Pulsing AI Dot ── */
+@keyframes pulseDot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 92, 252, 0.6); transform: scale(1); }
+  50%       { box-shadow: 0 0 0 8px rgba(124, 92, 252, 0); transform: scale(1.15); }
+}
+
+/* ── Glow Pulse (for CTA / active elements) ── */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: var(--glow-lavender); }
+  50%       { box-shadow: 0 0 30px rgba(124, 92, 252, 0.5), 0 0 60px rgba(124, 92, 252, 0.2); }
+}
+
+/* ── Shimmer (skeleton / loading) ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ── Spin ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Ring Progress ── */
+@keyframes ringFill {
+  from { stroke-dashoffset: 283; }
+  to   { stroke-dashoffset: var(--ring-offset, 0); }
+}
+
+/* ── Typing Cursor ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Ambient Orb Drift ── */
+@keyframes orbDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(20px, -15px) scale(1.05); }
+  66%       { transform: translate(-10px, 10px) scale(0.97); }
+}
+
+/* ── Hover Lift (Utility Class) ── */
+.hover-lift {
+  transition: transform var(--transition-sm), box-shadow var(--transition-sm);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--neo-shadow-hover);
+}
+
+/* ── Neo Button Press ── */
+.neo-btn-press:active {
+  box-shadow: var(--neo-shadow-in);
+  transform: scale(0.97);
+}
+
+/* ── Glow On Hover ── */
+.glow-hover:hover {
+  box-shadow: var(--glow-lavender);
+}
+
+/* ══════════════════════════════════════════
+   CUSTOM SCROLLBAR
+══════════════════════════════════════════ */
+::-webkit-scrollbar            { width: 6px; height: 6px; }
+::-webkit-scrollbar-track      { background: var(--bg-alt); border-radius: 3px; }
+::-webkit-scrollbar-thumb      { background: var(--lavender-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--lavender-deep); }
+
+/* ══════════════════════════════════════════
+   SELECTION
+══════════════════════════════════════════ */
+::selection { background: var(--lavender-soft); color: var(--lavender-deep); }

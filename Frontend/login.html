@@ -1,62 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ClaimSure_AI</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/root.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — AssureX_AI</title>
+<link rel="stylesheet" href="assets/css/root.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-    
-    <nav class="navbar navbar-expand-lg fixed-top py-3">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fa-solid fa-shield-halved me-2"></i>ClaimSure_AI
-            </a>
-            <div class="ms-auto d-flex align-items-center">
-                <a href="register.html" class="nav-link fw-bold text-muted">Create Account</a>
-            </div>
-        </div>
-    </nav>
+<body data-page="login" style="background:var(--bg-alt);">
 
-    <div class="container">
-        <div class="light-card auth-card">
-            <div class="text-center mb-4">
-                <h3 class="fw-bold text-dark">Welcome Back</h3>
-                <p class="text-muted">Sign in to manage your warranty claims.</p>
-            </div>
-            <form action="claim.html">
-                <div class="mb-3">
-                    <label class="form-label fw-bold text-dark">Email Address</label>
-                    <input type="email" class="form-control" placeholder="name@example.com" required>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between">
-                        <label class="form-label fw-bold text-dark">Password</label>
-                        <a href="#" class="text-sage text-decoration-none small fw-bold">Forgot Password?</a>
-                    </div>
-                    <input type="password" class="form-control" placeholder="••••••••" required>
-                </div>
-                <div class="mb-4 form-check">
-                    <input type="checkbox" class="form-check-input" id="rememberMe">
-                    <label class="form-check-label text-muted" for="rememberMe">Remember me</label>
-                </div>
-                <button type="submit" class="btn btn-olive w-100 mb-3">Login to Dashboard</button>
-                
-                <div class="text-center position-relative my-4">
-                    <hr>
-                    <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small fw-bold">OR</span>
-                </div>
-                
-                <button type="button" class="btn btn-outline-secondary w-100">
-                    <i class="fa-brands fa-google me-2"></i> Continue with Google
-                </button>
-            </form>
-        </div>
+<!-- Minimal Navbar -->
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-badge">
+        <div class="nav-logo-icon">🛡️</div>
+        <span class="nav-logo-text">AssureX<span style="color:var(--lavender-deep);">_AI</span></span>
+        <div class="nav-ai-dot"></div>
+      </div>
+    </a>
+    <div class="nav-right">
+      <a href="register.html" class="btn btn-primary btn-sm">Create Account ✨</a>
+    </div>
+  </div>
+</nav>
+
+<div class="auth-page">
+  <div class="auth-wrapper">
+
+    <!-- AXI Robot -->
+    <div class="auth-bot-wrap" style="flex-shrink:0;">
+      <div class="auth-bot" style="font-size:80px;animation:floatBot 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(124,92,252,0.35));">🤖</div>
+      <div class="auth-bot-bubble">
+        Fill your correct data to get in for warranty claiming process 🚀
+      </div>
     </div>
 
+    <!-- Auth Card -->
+    <div class="auth-card" style="max-width:440px;">
+      <div class="auth-header">
+        <div class="auth-logo">🛡️</div>
+        <h2 class="auth-title">Welcome Back!</h2>
+        <p class="auth-subtitle">Sign in to access your Warranty Vault</p>
+      </div>
+
+      <form class="auth-form" onsubmit="handleLogin(event)">
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label"><i class="fa fa-envelope me-1"></i> Email Address</label>
+          <div style="position:relative;">
+            <input type="email" class="neo-input" placeholder="you@example.com" id="loginEmail" required
+                   style="padding-left:44px;">
+            <i class="fa fa-envelope" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;"></i>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label"><i class="fa fa-lock me-1"></i> Password</label>
+          <div style="position:relative;">
+            <input type="password" class="neo-input" placeholder="Enter your password" id="loginPassword" required
+                   style="padding-left:44px;padding-right:44px;">
+            <i class="fa fa-lock" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;"></i>
+            <button type="button" onclick="togglePwd('loginPassword',this)"
+                    style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;">
+              <i class="fa fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember + Forgot -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;">
+            <input type="checkbox" style="accent-color:var(--lavender-deep);width:15px;height:15px;">
+            Remember me
+          </label>
+          <a href="#" style="font-size:13px;color:var(--lavender-deep);font-weight:700;">Forgot Password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">
+          <i class="fa fa-arrow-right-to-bracket me-2"></i> Sign In to Vault
+        </button>
+
+        <!-- Divider -->
+        <div class="auth-divider">or continue with</div>
+
+        <!-- Social -->
+        <div class="auth-social">
+          <button type="button" class="btn btn-neo" style="flex:1;gap:8px;padding:10px;">
+            <img src="https://www.google.com/favicon.ico" width="16" height="16" alt="G"> Google
+          </button>
+          <button type="button" class="btn btn-neo" style="flex:1;gap:8px;padding:10px;">
+            <span style="font-weight:900;font-size:16px;color:#1877f2;">f</span> Facebook
+          </button>
+        </div>
+
+        <!-- Register link -->
+        <p class="auth-footer-link">
+          New to AssureX_AI? <a href="register.html">Create a free account →</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- AXI Companion -->
+<div class="axi-companion" id="axiCompanion">
+  <div class="axi-speech-bubble">Hey!! Don't take stress... it's not good for health 😊</div>
+  <div class="axi-bot" style="width:68px;height:68px;background:linear-gradient(135deg,var(--lavender-deep),var(--indigo-electric));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;animation:floatBot 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(124,92,252,0.3));">🤖</div>
+</div>
+
+<!-- Contextual Tip (shown auto) -->
+<div id="axiContextTip" class="axi-context-tip"></div>
+
+<script src="assets/js/main.js"></script>
+<script>
+function togglePwd(id, btn) {
+  const el = document.getElementById(id);
+  const isText = el.type === 'text';
+  el.type = isText ? 'password' : 'text';
+  btn.innerHTML = isText ? '<i class="fa fa-eye"></i>' : '<i class="fa fa-eye-slash"></i>';
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Signing in...';
+  btn.disabled = true;
+  setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+}
+</script>
 </body>
 </html>

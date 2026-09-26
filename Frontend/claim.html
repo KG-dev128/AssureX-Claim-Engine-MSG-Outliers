@@ -1,226 +1,561 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File a Claim - ClaimSure_AI</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/root.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File a Claim — AssureX_AI</title>
+<link rel="stylesheet" href="assets/css/root.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ── SVG Ring for Summary ── */
+.ring-fill { stroke-dasharray: 283; stroke-dashoffset: 4; animation: ringFill 1.5s var(--ease-out) 0.3s both; }
+
+/* ── Cycling Loader custom ── */
+.cycling-loader { display: none; flex-direction: column; gap: 24px; }
+
+/* ── Section visibility ── */
+.claim-section-pane { display: none; }
+.claim-section-pane.visible { display: block; animation: fadeIn 0.4s var(--ease-smooth); }
+
+/* ── Step indicator ── */
+.step-indicator {
+  display: flex; align-items: center; gap: 0; margin-bottom: 36px; justify-content: center;
+}
+.step-pip {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; flex-shrink: 0;
+  background: var(--bg-alt); color: var(--text-muted);
+  box-shadow: var(--neo-shadow-out);
+  transition: all var(--transition-md);
+}
+.step-pip.active   { background: linear-gradient(135deg,var(--lavender-deep),var(--indigo-electric)); color:#fff; box-shadow: var(--glow-lavender); }
+.step-pip.complete { background: var(--success); color: #fff; }
+.step-line { flex:1; height: 3px; background: var(--border-light); max-width: 80px; }
+.step-line.complete { background: linear-gradient(90deg, var(--lavender-deep), var(--success)); }
+.step-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-align: center; margin-top: 5px; }
+.step-wrap  { display: flex; flex-direction: column; align-items: center; }
+</style>
 </head>
-<body class="pt-5 mt-4">
+<body data-page="claim">
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top py-3">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fa-solid fa-shield-halved me-2"></i>ClaimSure_AI
-            </a>
-            <div class="ms-auto d-flex align-items-center">
-                <a href="login.html" class="nav-link fw-bold text-muted"><i class="fa-solid fa-user me-2"></i>Logout</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div class="spinner-olive"></div>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" id="loading-progress"></div>
-        </div>
-        <h4 id="loading-text" class="text-olive mt-3 fw-bold">Initializing AI Engine...</h4>
+<!-- ══════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-badge">
+        <div class="nav-logo-icon">🛡️</div>
+        <span class="nav-logo-text">AssureX<span style="color:var(--lavender-deep);">_AI</span></span>
+        <div class="nav-ai-dot"></div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="claim.html" class="active">Claim Warranty</a></li>
+      <li><a href="user-profile.html">My Claims</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="user-profile.html" class="btn btn-ghost btn-sm">My Vault</a>
+      <a href="login.html" class="btn btn-primary btn-sm">Logout</a>
     </div>
+  </div>
+</nav>
 
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                
-                <!-- Wizard Header -->
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold text-dark">Intelligent Claim Filing</h2>
-                    <p class="text-muted">Follow the steps below to auto-verify your claim.</p>
-                </div>
-
-                <!-- Step 1: Product Selection & Details -->
-                <div class="light-card step-container active" id="step-1">
-                    <h4 class="mb-4 text-olive"><i class="fa-solid fa-1 me-2"></i>Product Details</h4>
-                    <form id="form-step-1">
-                        <div class="mb-3">
-                            <label class="form-label text-dark fw-bold">Select Product Category</label>
-                            <select class="form-select" required>
-                                <option value="" selected disabled>Choose a product...</option>
-                                <option value="Smartphone">Smartphone</option>
-                                <option value="Refrigerator">Refrigerator</option>
-                                <option value="Television">Television</option>
-                                <option value="Microwave">Microwave</option>
-                                <option value="Printer">Printer</option>
-                                <option value="Washing Machine">Washing Machine</option>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Air Conditioner">Air Conditioner (AC)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-dark fw-bold">Claim Title</label>
-                            <input type="text" class="form-control" placeholder="e.g. Screen Burn Issue" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-dark fw-bold">Purchase Date</label>
-                            <input type="date" class="form-control" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label text-dark fw-bold">Issue Description</label>
-                            <textarea class="form-control" rows="3" placeholder="Describe the problem..." required></textarea>
-                        </div>
-                        <div class="text-end">
-                            <button type="button" class="btn btn-olive" onclick="nextStep(1, 2)">Next Step <i class="fa-solid fa-arrow-right ms-2"></i></button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Step 2: Camera Capture Engine -->
-                <div class="light-card step-container" id="step-2">
-                    <h4 class="mb-4 text-olive"><i class="fa-solid fa-2 me-2"></i>Document Capture</h4>
-                    <p class="text-muted mb-4">Please provide clear photos of the following documents. You can capture directly or upload.</p>
-                    
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="capture-box">
-                                <h6 class="fw-bold">Receipt / Invoice</h6>
-                                <i class="fa-solid fa-file-invoice fs-1 text-muted my-3"></i>
-                                <button class="btn btn-outline-olive btn-sm w-100 mb-2" onclick="openCamera('receipt')"><i class="fa-solid fa-camera me-1"></i> Camera</button>
-                                <input type="file" class="form-control form-control-sm" accept="image/*">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="capture-box">
-                                <h6 class="fw-bold">Warranty Card</h6>
-                                <i class="fa-solid fa-id-card fs-1 text-muted my-3"></i>
-                                <button class="btn btn-outline-olive btn-sm w-100 mb-2" onclick="openCamera('warranty')"><i class="fa-solid fa-camera me-1"></i> Camera</button>
-                                <input type="file" class="form-control form-control-sm" accept="image/*">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="capture-box">
-                                <h6 class="fw-bold">Damage Photo</h6>
-                                <i class="fa-solid fa-image fs-1 text-muted my-3"></i>
-                                <button class="btn btn-outline-olive btn-sm w-100 mb-2" onclick="openCamera('damage')"><i class="fa-solid fa-camera me-1"></i> Camera</button>
-                                <input type="file" class="form-control form-control-sm" accept="image/*">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Camera Modal Area -->
-                    <div id="camera-section" class="mt-4 text-center" style="display: none;">
-                        <video id="camera-preview" class="mx-auto shadow-sm" autoplay playsinline></video>
-                        <div class="mt-3">
-                            <button class="btn btn-olive" id="capture-btn"><i class="fa-solid fa-camera me-2"></i>Snap Photo</button>
-                            <button class="btn btn-outline-secondary ms-2" onclick="closeCamera()">Cancel</button>
-                        </div>
-                    </div>
-
-                    <div class="mt-5 d-flex justify-content-between">
-                        <button class="btn btn-outline-secondary" onclick="nextStep(2, 1)"><i class="fa-solid fa-arrow-left me-2"></i> Back</button>
-                        <button class="btn btn-olive" onclick="processExtraction()">Process & Extract Details <i class="fa-solid fa-microchip ms-2"></i></button>
-                    </div>
-                </div>
-
-                <!-- Step 4: Verification Form -->
-                <div class="light-card step-container" id="step-4">
-                    <h4 class="mb-4 text-olive"><i class="fa-solid fa-3 me-2"></i>Verify Extracted Data</h4>
-                    <div class="row">
-                        <!-- Thumbnails -->
-                        <div class="col-md-5 border-end pe-md-4">
-                            <h6 class="fw-bold mb-3">Document Fingerprints</h6>
-                            
-                            <div class="d-flex align-items-center mb-3 p-2 bg-light rounded border">
-                                <div class="bg-secondary rounded me-3" style="width: 50px; height: 50px;"></div>
-                                <div>
-                                    <small class="d-block fw-bold text-dark">Invoice.jpg</small>
-                                    <span class="badge bg-success" style="font-size: 0.6rem;">SHA256: 8f4e...9b2a</span>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-3 p-2 bg-light rounded border">
-                                <div class="bg-secondary rounded me-3" style="width: 50px; height: 50px;"></div>
-                                <div>
-                                    <small class="d-block fw-bold text-dark">Warranty.jpg</small>
-                                    <span class="badge bg-success" style="font-size: 0.6rem;">SHA256: 3c21...1a7f</span>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center p-2 bg-light rounded border">
-                                <div class="bg-secondary rounded me-3" style="width: 50px; height: 50px;"></div>
-                                <div>
-                                    <small class="d-block fw-bold text-dark">Damage.jpg</small>
-                                    <span class="badge bg-success" style="font-size: 0.6rem;">SHA256: d510...4e6c</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Editor -->
-                        <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
-                            <form>
-                                <div class="row">
-                                    <div class="col-sm-6 mb-3">
-                                        <label class="form-label text-dark fw-bold small">Invoice #</label>
-                                        <input type="text" class="form-control" value="INV-99281-A">
-                                    </div>
-                                    <div class="col-sm-6 mb-3">
-                                        <label class="form-label text-dark fw-bold small">Store Name</label>
-                                        <input type="text" class="form-control" value="TechMart MegaStore">
-                                    </div>
-                                    <div class="col-sm-6 mb-3">
-                                        <label class="form-label text-dark fw-bold small">Serial #</label>
-                                        <input type="text" class="form-control" value="SN-XA90218843">
-                                    </div>
-                                    <div class="col-sm-6 mb-3">
-                                        <label class="form-label text-dark fw-bold small">Purchase Date</label>
-                                        <input type="text" class="form-control" value="2023-11-15">
-                                    </div>
-                                    <div class="col-sm-12 mb-3">
-                                        <label class="form-label text-dark fw-bold small">Paid Amount</label>
-                                        <input type="text" class="form-control" value="$899.99">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 d-flex justify-content-between">
-                        <button class="btn btn-outline-secondary" onclick="nextStep(4, 2)"><i class="fa-solid fa-arrow-left me-2"></i> Retake Photos</button>
-                        <button class="btn btn-olive" onclick="nextStep(4, 5)">Submit for Final Evaluation <i class="fa-solid fa-gavel ms-2"></i></button>
-                    </div>
-                </div>
-
-                <!-- Step 5: Final Decision -->
-                <div class="light-card step-container text-center py-5" id="step-5">
-                    
-                    <!-- Outcome Container (Dynamic) -->
-                    <div id="outcome-container">
-                        <!-- Example: Valid Outcome -->
-                        <i class="fa-solid fa-circle-check text-olive mb-3" style="font-size: 4rem;"></i>
-                        <h3 class="text-dark mb-2 fw-bold">Claim Auto-Approved</h3>
-                        <div class="badge-valid mb-4">98.5% Confidence Score</div>
-                        <p class="text-muted px-lg-5 mb-5">Your warranty claim has passed multi-modal AI verification. All document hashes match the manufacturer database, and date validity is confirmed.</p>
-                        
-                        <button class="btn btn-olive"><i class="fa-solid fa-file-pdf me-2"></i>Download PDF Audit Certificate</button>
-                        <button class="btn btn-outline-olive ms-2" onclick="location.reload()">File Another Claim</button>
-                    </div>
-
-                    <!-- Alternate outcomes can be toggled via JS for demo purposes -->
-                    <div class="mt-5 pt-3 border-top text-start">
-                        <small class="text-muted d-block mb-2 fw-bold">Demo Toggles:</small>
-                        <button class="btn btn-sm btn-outline-success me-2" onclick="showOutcome('valid')">Simulate Valid</button>
-                        <button class="btn btn-sm btn-outline-danger me-2" onclick="showOutcome('invalid')">Simulate Invalid</button>
-                        <button class="btn btn-sm btn-outline-warning" onclick="showOutcome('review')">Simulate Review</button>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
+<!-- ══════════════════════════════════════════
+     PAGE HEADER / BREADCRUMB
+══════════════════════════════════════════ -->
+<div class="page-header" id="pageHeader">
+  <div class="container">
+    <div class="page-header-content">
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="user-profile.html">Vault</a>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:rgba(255,255,255,0.9);">New Claim</span>
+      </div>
+      <h1 class="page-header-title" id="pageHeaderTitle">File a warranty claim</h1>
+      <p class="page-header-sub" id="pageHeaderSub">Upload your receipt — AI verifies and saves it to your vault.</p>
     </div>
+  </div>
+</div>
 
-    <script src="assets/js/main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- ══════════════════════════════════════════
+     OCR LOADING OVERLAY
+══════════════════════════════════════════ -->
+<div class="cycling-loader" id="cyclingLoader" style="position:fixed;inset:0;z-index:9999;background:rgba(251,249,245,0.96);backdrop-filter:blur(10px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:28px;">
+
+  <div style="text-align:center;">
+    <div style="font-size:28px;font-weight:900;color:var(--text-primary);margin-bottom:6px;">🤖 AXI is Working...</div>
+    <div style="font-size:14px;color:var(--text-muted);">Multi-Modal AI Verification in Progress</div>
+  </div>
+
+  <!-- Cycling Road -->
+  <div class="cycling-track" style="width:min(580px,88vw);position:relative;">
+    <div class="cycling-road" style="height:8px;background:var(--bg-alt);border-radius:4px;box-shadow:var(--neo-shadow-in);overflow:hidden;position:relative;">
+      <div id="loaderProgress" style="height:100%;width:0%;background:linear-gradient(90deg,var(--lavender-deep),var(--success));border-radius:4px;transition:width 0.4s ease;"></div>
+    </div>
+    <!-- Robot cycling on top of the track -->
+    <div style="position:absolute;bottom:10px;font-size:36px;animation:robotCycling 2.2s linear infinite;filter:drop-shadow(0 3px 8px rgba(124,92,252,0.3));">🚴</div>
+    <!-- Road dots decoration -->
+    <div style="display:flex;justify-content:space-between;margin-top:8px;padding:0 2px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--border-light);"></div>
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--border-light);"></div>
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--border-light);"></div>
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--border-light);"></div>
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--border-light);"></div>
+    </div>
+  </div>
+
+  <div id="loaderStatusText" class="cycling-status-text" style="font-size:14px;font-weight:600;color:var(--text-secondary);text-align:center;max-width:420px;line-height:1.6;">
+    Initiating AI verification engine...
+  </div>
+
+  <button onclick="OCRLoader && OCRLoader.hide()" style="background:none;border:1px solid var(--border-mid);color:var(--text-muted);padding:8px 18px;border-radius:var(--radius-full);font-size:12.5px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+    Cancel
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN CONTENT AREA
+══════════════════════════════════════════ -->
+<div class="container" style="padding-top:40px;padding-bottom:80px;">
+
+  <!-- Step Indicator -->
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-wrap">
+      <div class="step-pip active" id="pip1">1</div>
+      <div class="step-label">Product Info</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-wrap">
+      <div class="step-pip" id="pip2">2</div>
+      <div class="step-label">Upload Media</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-wrap">
+      <div class="step-pip" id="pip3">3</div>
+      <div class="step-label">AI Verification</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-wrap">
+      <div class="step-pip" id="pip4">4</div>
+      <div class="step-label">Summary</div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 1: Product Info ─── -->
+  <div class="claim-section-pane visible" id="step1">
+    <div class="claim-layout">
+
+      <!-- Main Form -->
+      <div class="claim-main">
+        <div class="claim-form-card">
+          <div class="claim-section-title">
+            <div class="claim-section-icon">📦</div>
+            Product Information
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Product Name *</label>
+                <input type="text" class="neo-input" placeholder="e.g. Samsung Galaxy S24 Ultra" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Brand / Manufacturer *</label>
+                <input type="text" class="neo-input" placeholder="e.g. Samsung, Apple, LG" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Product Category *</label>
+                <div style="position:relative;">
+                  <select class="neo-select" required>
+                    <option value="">Select a category</option>
+                    <option>Smartphone</option>
+                    <option>Laptop</option>
+                    <option>Television</option>
+                    <option>Refrigerator</option>
+                    <option>Washing Machine</option>
+                    <option>Air Conditioner</option>
+                    <option>Microwave</option>
+                    <option>Printer</option>
+                    <option>Other Electronics</option>
+                  </select>
+                  <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted);">▾</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Model Number</label>
+                <input type="text" class="neo-input" placeholder="e.g. SM-S928B">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Serial Number / IMEI *</label>
+              <div style="position:relative;">
+                <input type="text" class="neo-input" placeholder="e.g. SN 358274065832741" required style="padding-right:130px;font-family:var(--font-mono);">
+                <button type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--lavender-soft);color:var(--lavender-deep);border:1px solid var(--border-mid);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+                  📷 Scan IMEI
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Purchase Date *</label>
+                <input type="date" class="neo-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Purchase Price</label>
+                <div style="position:relative;">
+                  <input type="number" class="neo-input" placeholder="e.g. 89999" style="padding-left:54px;">
+                  <span style="position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:700;color:var(--text-muted);">PKR</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Retailer / Store Name</label>
+                <input type="text" class="neo-input" placeholder="e.g. TechMart Pro">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Warranty Duration</label>
+                <div style="display:flex;gap:10px;">
+                  <input type="number" class="neo-input" placeholder="e.g. 1" style="width:80px;flex-shrink:0;">
+                  <select class="neo-select">
+                    <option value="years">Years</option>
+                    <option value="months">Months</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Fault Description</label>
+              <textarea class="neo-input" rows="3" placeholder="Briefly describe the issue (optional at this stage)..." style="resize:vertical;"></textarea>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;margin-top:28px;">
+            <button class="btn btn-primary btn-lg" onclick="goStep(2)">
+              Next: Upload Documents <i class="fa fa-arrow-right ms-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="claim-sidebar">
+        <div class="sidebar-widget">
+          <div class="sidebar-widget-title">💡 Quick Tips</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text-secondary);">
+              <span style="flex-shrink:0;font-size:16px;">✅</span>
+              <span>Ensure the serial number matches exactly what's on your device packaging.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text-secondary);">
+              <span style="flex-shrink:0;font-size:16px;">📅</span>
+              <span>Purchase date must be within the manufacturer's warranty window.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text-secondary);">
+              <span style="flex-shrink:0;font-size:16px;">🔐</span>
+              <span>All data is encrypted end-to-end and never shared with third parties.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AXI Widget in Sidebar -->
+        <div class="sidebar-widget" style="background:linear-gradient(135deg,var(--lavender-pale),var(--lavender-soft));border:1px solid var(--border-mid);">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:36px;animation:floatBot 3.5s ease-in-out infinite;flex-shrink:0;">🤖</div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">AXI Assistant</div>
+              <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">Double check your receipt numbers for 100% fast verification! ⚡</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-widget">
+          <div class="sidebar-widget-title">🛡️ What's Covered</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--success);">✓</span> Manufacturing Defects</div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--success);">✓</span> Component Failures</div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--success);">✓</span> Electrical Faults</div>
+            <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);"><span>✗</span> Physical / Liquid Damage</div>
+            <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);"><span>✗</span> Unauthorized Modifications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 2: Upload Media ─── -->
+  <div class="claim-section-pane" id="step2">
+    <div class="claim-layout">
+      <div class="claim-main">
+
+        <!-- Upload Zone 1: Receipt -->
+        <div class="claim-form-card">
+          <div class="claim-section-title">
+            <div class="claim-section-icon">🧾</div>
+            Purchase Receipt / Invoice
+          </div>
+          <div class="dropzone" id="dropzone1" onclick="document.getElementById('fileInput1').click()">
+            <input type="file" id="fileInput1" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;">
+            <div class="dropzone-icon">📄</div>
+            <div class="dropzone-title">Drop your invoice here or click to browse</div>
+            <div class="dropzone-sub">PDF, JPG, PNG up to 10MB · High resolution preferred for accurate OCR</div>
+            <div class="dropzone-files" id="fileList1"></div>
+          </div>
+        </div>
+
+        <!-- Upload Zone 2: Warranty Card -->
+        <div class="claim-form-card">
+          <div class="claim-section-title">
+            <div class="claim-section-icon">📋</div>
+            Warranty Card / Policy Document
+          </div>
+          <div class="dropzone" id="dropzone2" onclick="document.getElementById('fileInput2').click()">
+            <input type="file" id="fileInput2" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;">
+            <div class="dropzone-icon">📑</div>
+            <div class="dropzone-title">Drop your warranty card or click to browse</div>
+            <div class="dropzone-sub">PDF, JPG, PNG up to 10MB</div>
+            <div class="dropzone-files" id="fileList2"></div>
+          </div>
+        </div>
+
+        <!-- Upload Zone 3: Fault Photos -->
+        <div class="claim-form-card">
+          <div class="claim-section-title">
+            <div class="claim-section-icon">📸</div>
+            Damaged Product Images / Video Proof
+          </div>
+          <div class="dropzone" id="dropzone3" onclick="document.getElementById('fileInput3').click()">
+            <input type="file" id="fileInput3" accept=".jpg,.jpeg,.png,.mp4,.mov" multiple style="display:none;">
+            <div class="dropzone-icon">🎥</div>
+            <div class="dropzone-title">Drop product photos or video here</div>
+            <div class="dropzone-sub">JPG, PNG, MP4, MOV up to 50MB · Clearly show the defect or damage</div>
+            <div class="dropzone-files" id="fileList3"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:space-between;margin-top:8px;">
+          <button class="btn btn-neo btn-lg" onclick="goStep(1)">
+            <i class="fa fa-arrow-left me-2"></i> Back
+          </button>
+          <button class="btn btn-primary btn-lg" id="claimSubmitBtn">
+            ⚡ Submit & Start AI Verification
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="claim-sidebar">
+        <div class="sidebar-widget">
+          <div class="sidebar-widget-title">📎 Upload Checklist</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="checkbox" style="accent-color:var(--lavender-deep);"> Purchase Receipt
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="checkbox" style="accent-color:var(--lavender-deep);"> Warranty Card
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="checkbox" style="accent-color:var(--lavender-deep);"> Fault Photos
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="checkbox" style="accent-color:var(--lavender-deep);"> Customer ID (optional)
+            </label>
+          </div>
+        </div>
+        <div class="sidebar-widget" style="background:linear-gradient(135deg,var(--lavender-pale),var(--lavender-soft));border:1px solid var(--border-mid);">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:36px;animation:floatBot 3.5s ease-in-out infinite;flex-shrink:0;">🤖</div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">AXI Says</div>
+              <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">Clear, well-lit photos of your receipt result in 94%+ OCR accuracy. Avoid shadows! 📸</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 4: SUMMARY ─── -->
+  <div class="claim-section-pane" id="step4">
+    <div class="summary-page" style="padding:0;">
+
+      <!-- Hero -->
+      <div class="summary-hero">
+        <div id="verdictBadge" class="verdict-badge verdict-approved" style="font-size:18px;padding:12px 28px;">
+          ✅ Claim Auto-Approved
+        </div>
+        <h2 class="summary-hero-title">Verification complete</h2>
+        <p class="summary-hero-message" id="verdictMessage">
+          Your claim passed AI verification. Document details match our records and coverage dates are valid.
+        </p>
+
+        <!-- Ring Gauge -->
+        <div class="ring-gauge-wrap">
+          <div class="ring-gauge">
+            <svg width="150" height="150" viewBox="0 0 100 100">
+              <circle class="ring-track" cx="50" cy="50" r="45"/>
+              <circle class="ring-fill" id="ringFill" cx="50" cy="50" r="45" stroke="var(--lavender-deep)" stroke-dasharray="283" stroke-dashoffset="4"/>
+            </svg>
+            <div class="ring-gauge-label">
+              <strong id="ringScore">98.5%</strong>
+              <span>Confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demo Toggles -->
+        <div style="margin-bottom:10px;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">🧪 Demo Mode — Test Different Verdict States</div>
+        <div class="demo-toggle-bar">
+          <button class="demo-toggle active-valid" data-verdict="valid">✅ Valid (Auto-Approved)</button>
+          <button class="demo-toggle" data-verdict="invalid">❌ Invalid (Rejected)</button>
+          <button class="demo-toggle" data-verdict="review">🔍 Manual Review</button>
+        </div>
+      </div>
+
+      <!-- Detail Cards -->
+      <div class="summary-grid">
+        <div class="summary-detail-card">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+            <span>📦</span> Product Details
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Product</span><span style="font-weight:700;">Samsung Galaxy S23</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Brand</span><span style="font-weight:700;">Samsung</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Serial No.</span><span style="font-weight:700;font-family:var(--font-mono);font-size:11px;">SN358274065832741</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Purchase Date</span><span style="font-weight:700;">Jan 15, 2024</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Warranty Until</span><span style="font-weight:700;color:var(--success);">Jan 15, 2025</span></div>
+          </div>
+        </div>
+
+        <div class="summary-detail-card">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+            <span>🔍</span> OCR Extraction Results
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Invoice #</span><span style="font-weight:700;font-family:var(--font-mono);">INV-458712</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Amount</span><span style="font-weight:700;">PKR 89,999</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">OCR Confidence</span><span class="badge badge-active">97%</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Hash Status</span><span class="badge badge-active">✓ Unique</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Store</span><span style="font-weight:700;">TechMart Pro</span></div>
+          </div>
+        </div>
+
+        <div class="summary-detail-card">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+            <span>🤖</span> AI Verdict Summary
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Python ML</span><span class="badge badge-active">Valid 82%</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">CNN Model</span><span class="badge badge-active">Valid 76%</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Warranty Rule</span><span class="badge badge-active">✓ Covered</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">SHA-256 Hash</span><span class="badge badge-active">✓ Unique</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--text-muted);">Auto Decision</span><span class="badge badge-active">✓ Approved</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Trail -->
+      <div style="background:var(--bg-base);border-radius:var(--radius-lg);box-shadow:var(--neo-shadow-card);padding:24px;border:1px solid var(--border-light);margin-bottom:28px;">
+        <div style="font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <span>📋</span> Immutable Audit Trail
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;border-left:3px solid var(--lavender-soft);padding-left:16px;">
+          <div style="display:flex;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;margin-top:4px;"></div><div><div style="font-weight:600;">Claim Submitted</div><div style="color:var(--text-muted);font-size:11px;">Aug 20, 2026 • 10:24 AM</div></div></div>
+          <div style="display:flex;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;margin-top:4px;"></div><div><div style="font-weight:600;">OCR Engine Processed — Confidence: 97%</div><div style="color:var(--text-muted);font-size:11px;">Aug 20, 2026 • 10:24 AM</div></div></div>
+          <div style="display:flex;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;margin-top:4px;"></div><div><div style="font-weight:600;">Python ML Model → Valid (82%)</div><div style="color:var(--text-muted);font-size:11px;">Aug 20, 2026 • 10:25 AM</div></div></div>
+          <div style="display:flex;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;margin-top:4px;"></div><div><div style="font-weight:600;">Auto-Approved — SHA-256: 8f4e9a2c...b2a1</div><div style="color:var(--text-muted);font-size:11px;">Aug 20, 2026 • 10:25 AM</div></div></div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="summary-action-bar">
+        <button class="btn btn-primary btn-lg btn-glow" onclick="alert('PDF Audit Certificate downloading...')">
+          📄 Download PDF Audit Certificate
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="goStep(1)">
+          🔄 File Another Claim
+        </button>
+        <a href="user-profile.html" class="btn btn-neo btn-lg">
+          🏠 Go to My Vault
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- AXI Companion -->
+<div class="axi-companion" id="axiCompanion">
+  <div class="axi-speech-bubble">Hey!! Don't take stress... it's not good for health 😊</div>
+  <div class="axi-bot" style="width:68px;height:68px;background:linear-gradient(135deg,var(--lavender-deep),var(--indigo-electric));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;animation:floatBot 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(124,92,252,0.3));">🤖</div>
+</div>
+<div id="axiContextTip" class="axi-context-tip"></div>
+
+<script src="assets/js/main.js"></script>
+<script>
+// ── Step Navigation ──────────────────────────────────
+function goStep(n) {
+  // Hide all steps
+  document.querySelectorAll('.claim-section-pane').forEach(p => p.classList.remove('visible'));
+
+  // Show target step (1→step1, 2→step2, 4→step4)
+  const map = {1:'step1', 2:'step2', 3:'cyclingLoader', 4:'step4'};
+  if (n === 3) {
+    // Show loader, then go to step 4
+    OCRLoader.show(() => { goStep(4); });
+    return;
+  }
+  const el = document.getElementById(map[n]);
+  if (el) el.classList.add('visible');
+
+  // Update step pips
+  for (let i=1; i<=4; i++) {
+    const pip = document.getElementById('pip'+i);
+    if (!pip) continue;
+    pip.classList.remove('active','complete');
+    if (i < n) pip.classList.add('complete'), pip.textContent = '✓';
+    else if (i === n) pip.classList.add('active'), pip.textContent = i;
+    else pip.textContent = i;
+  }
+  // Update lines
+  for (let i=1; i<=3; i++) {
+    const ln = document.getElementById('line'+i);
+    if (!ln) continue;
+    ln.classList.toggle('complete', i < n);
+  }
+
+  // Update header text
+  const titles = {
+    1: ['File a New Warranty Claim', 'Enter your product details below.'],
+    2: ['Upload Supporting Documents', 'Upload your receipt, warranty card, and fault photos for AI verification.'],
+    4: ['Claim Verification Complete', 'Your AI verification results are ready.']
+  };
+  const t = titles[n] || titles[1];
+  document.getElementById('pageHeaderTitle').textContent = t[0];
+  document.getElementById('pageHeaderSub').textContent = t[1];
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Override ClaimForm submit to go to step 3 (loader) then 4 (summary)
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('claimSubmitBtn');
+  if (btn) btn.addEventListener('click', () => goStep(3));
+});
+</script>
 </body>
 </html>
