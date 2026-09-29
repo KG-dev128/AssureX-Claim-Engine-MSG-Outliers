@@ -1,0 +1,25 @@
+{
+  "category": "automotive",
+  "category_name": "Automotive & Parts",
+  "standard_warranty_months": 36,
+  "max_claim_reporting_days": 15,
+  "excluded_damage_types": [
+    "racing_usage",
+    "accident_collision",
+    "wear_and_tear",
+    "negligence"
+  ],
+  "covered_damage_types": [
+    "electrical_failure",
+    "mechanical_failure",
+    "sensor_failure"
+  ],
+  "required_documents": [
+    "receipt",
+    "repair_report",
+    "fault_evidence"
+  ],
+  "requires_authorized_repair_only": true,
+  "max_allowable_repairs": 2,
+  "requires_serial_number_verification": true
+}

@@ -1,0 +1,26 @@
+{
+  "category": "electronics",
+  "category_name": "Consumer Electronics",
+  "standard_warranty_months": 12,
+  "max_claim_reporting_days": 30,
+  "excluded_damage_types": [
+    "water_damage",
+    "screen_crack",
+    "wear_and_tear",
+    "unauthorized_modification"
+  ],
+  "covered_damage_types": [
+    "electrical_failure",
+    "mechanical_failure",
+    "software_glitch",
+    "battery_degradation"
+  ],
+  "required_documents": [
+    "receipt",
+    "product_image",
+    "fault_evidence"
+  ],
+  "requires_authorized_repair_only": true,
+  "max_allowable_repairs": 3,
+  "requires_serial_number_verification": true
+}

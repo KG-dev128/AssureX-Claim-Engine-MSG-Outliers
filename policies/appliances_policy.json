@@ -1,0 +1,25 @@
+{
+  "category": "appliances",
+  "category_name": "Home Appliances",
+  "standard_warranty_months": 24,
+  "max_claim_reporting_days": 45,
+  "excluded_damage_types": [
+    "pest_infestation",
+    "power_surge",
+    "improper_installation",
+    "wear_and_tear"
+  ],
+  "covered_damage_types": [
+    "electrical_failure",
+    "mechanical_failure",
+    "cooling_system_failure",
+    "heating_element_failure"
+  ],
+  "required_documents": [
+    "receipt",
+    "fault_evidence"
+  ],
+  "requires_authorized_repair_only": true,
+  "max_allowable_repairs": 4,
+  "requires_serial_number_verification": true
+}

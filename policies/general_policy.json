@@ -1,0 +1,22 @@
+{
+  "category": "general",
+  "category_name": "General Products",
+  "standard_warranty_months": 12,
+  "max_claim_reporting_days": 30,
+  "excluded_damage_types": [
+    "intentional_damage",
+    "wear_and_tear"
+  ],
+  "covered_damage_types": [
+    "manufacturing_defect",
+    "electrical_failure",
+    "mechanical_failure"
+  ],
+  "required_documents": [
+    "receipt",
+    "fault_evidence"
+  ],
+  "requires_authorized_repair_only": true,
+  "max_allowable_repairs": 3,
+  "requires_serial_number_verification": true
+}

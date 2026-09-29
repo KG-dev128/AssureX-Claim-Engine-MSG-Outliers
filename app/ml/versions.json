@@ -1,0 +1,22 @@
+[
+  {
+    "version_id": "3faa78fe-e35c-43dd-acda-a8fc81e0bba5",
+    "model_type": "python",
+    "version_tag": "v1.0-tabular",
+    "algorithm": "RandomForest",
+    "accuracy": 0.9467,
+    "f1_score": 0.9467,
+    "model_file_path": "app/ml/models/best_model.pkl",
+    "is_active": true
+  },
+  {
+    "version_id": "b79e1cae-0931-4884-bdfa-fbb1fd2d40aa",
+    "model_type": "gtm",
+    "version_tag": "v1.0-visual",
+    "algorithm": "TeachableMachine-MobileNetV2",
+    "accuracy": 0.945,
+    "f1_score": 0.942,
+    "model_file_path": "app/ml/gtm/model.tflite",
+    "is_active": true
+  }
+]
