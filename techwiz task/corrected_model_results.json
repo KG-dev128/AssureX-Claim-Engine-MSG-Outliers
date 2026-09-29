@@ -1,0 +1,39 @@
+{
+  "Logistic Regression": {
+    "validation_accuracy": 0.9203539823008849,
+    "test_accuracy": 0.9511111111111111,
+    "macro_precision": 0.9510334054313866,
+    "macro_recall": 0.9511111111111111,
+    "macro_f1": 0.9509874112523118,
+    "cv_accuracy": 0.9246707678286625,
+    "best_parameters": {
+      "model__C": 5
+    }
+  },
+  "Random Forest": {
+    "validation_accuracy": 0.8716814159292036,
+    "test_accuracy": 0.8844444444444445,
+    "macro_precision": 0.8874233405483406,
+    "macro_recall": 0.8844444444444445,
+    "macro_f1": 0.8832510952509095,
+    "cv_accuracy": 0.8808111187058556,
+    "best_parameters": {
+      "model__max_depth": 8,
+      "model__min_samples_leaf": 2,
+      "model__n_estimators": 150
+    }
+  },
+  "XGBoost": {
+    "validation_accuracy": 0.911504424778761,
+    "test_accuracy": 0.9333333333333333,
+    "macro_precision": 0.9352643548331775,
+    "macro_recall": 0.9333333333333332,
+    "macro_f1": 0.9328356554079312,
+    "cv_accuracy": 0.93328320802005,
+    "best_parameters": {
+      "model__learning_rate": 0.08,
+      "model__max_depth": 4,
+      "model__n_estimators": 150
+    }
+  }
+}

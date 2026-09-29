@@ -1,0 +1,101 @@
+{
+  "policy_name": "Refrigerator Standard Warranty - Demo v1",
+  "category": "Refrigerator",
+  "coverage_duration_months": 24,
+  "nearing_expiry_days": 45,
+  "warranty_start_conditions": [
+    "Starts on purchase date unless extended coverage record exists"
+  ],
+  "covered_fault_categories": [
+    "cooling",
+    "compressor",
+    "thermostat",
+    "fan",
+    "power",
+    "display",
+    "ice maker",
+    "water dispenser",
+    "door seal"
+  ],
+  "excluded_damage": [
+    "water damage",
+    "physical impact",
+    "misuse",
+    "unauthorized modification",
+    "pest damage"
+  ],
+  "claim_reporting_period_days": 30,
+  "repair_conditions": [
+    "Repair must be recorded",
+    "Unauthorized parts or modification require review"
+  ],
+  "authorized_service_centers": [
+    "AssureX Service Center",
+    "Manufacturer Authorized Center"
+  ],
+  "replacement_conditions": [
+    "Replacement may be considered for qualifying repeated major faults"
+  ],
+  "grace_period_days": 7,
+  "mandatory_documents": [
+    "purchase_receipt",
+    "warranty_card",
+    "product_image",
+    "serial_number_evidence",
+    "fault_evidence"
+  ],
+  "hard_fail_rules": [
+    "Warranty expired",
+    "Excluded damage confirmed",
+    "Unauthorized modification confirmed",
+    "Purchase proof missing"
+  ],
+  "warning_rules": [
+    "Warranty nearing expiry",
+    "Claim submitted after normal reporting window",
+    "Minor document quality issue"
+  ],
+  "manual_review_rules": [
+    "Serial mismatch",
+    "Fault date before purchase",
+    "Fault date after claim submission",
+    "Previous repair center cannot be verified",
+    "Borderline coverage case",
+    "Duplicate document indicator"
+  ],
+  "product_category": "Refrigerator",
+  "coverage_duration": {
+    "months": 24
+  },
+  "start_conditions": [
+    "Starts on purchase date unless extended coverage record exists"
+  ],
+  "covered_faults": [
+    "cooling",
+    "compressor",
+    "thermostat",
+    "fan",
+    "power",
+    "display",
+    "ice maker",
+    "water dispenser",
+    "door seal"
+  ],
+  "exclusions": [
+    "water damage",
+    "physical impact",
+    "misuse",
+    "unauthorized modification",
+    "pest damage"
+  ],
+  "reporting_period": {
+    "days": 30
+  },
+  "authorized_service_center": [
+    "AssureX Service Center",
+    "Manufacturer Authorized Center"
+  ],
+  "grace_period": {
+    "days": 7
+  }
+}
