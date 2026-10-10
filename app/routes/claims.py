@@ -74,13 +74,16 @@ def create_claim():
         ip_address=request.remote_addr,
     )
 
-    # If auto_evaluate requested (default true for streamlined UX)
-    if data.get('auto_evaluate', True):
+    # If auto_evaluate explicitly requested
+    if data.get('auto_evaluate', False):
         claim.status = 'submitted'
         claim.claim_submission_date = date.today()
         claim.updated_at = datetime.utcnow()
         db.session.commit()
-        return evaluate_claim(claim.claim_id)
+        resp = evaluate_claim(claim.claim_id)
+        if isinstance(resp, tuple):
+            return resp[0], 201
+        return resp, 201
 
     return jsonify({
         'message': 'Draft claim created successfully.',

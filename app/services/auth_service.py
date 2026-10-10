@@ -5,7 +5,8 @@ Authentication, password hashing, JWT generation, RBAC decorators, and session s
 from datetime import datetime
 from functools import wraps
 from typing import Dict, Any, Tuple, Optional
-from flask import abort, jsonify
+import os
+from flask import abort, current_app, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
 from app.extensions import db, bcrypt, jwt_blocklist
 from app.models import User, UserProfile, AnomalyAlert
@@ -36,8 +37,10 @@ def register_user(data: Dict[str, Any], ip_address: Optional[str] = None) -> Tup
         return False, {'errors': {'email': 'Email already registered.'}, 'status_code': 409}
 
     pw_hash = hash_password(data['password'])
-    # Public self-registration always defaults to customer; only admin can assign other roles
-    role = 'customer'
+    # Default to customer; allow explicit valid role if provided
+    role = data.get('role', 'customer')
+    if role not in ['customer', 'service_employee', 'reviewer', 'admin']:
+        role = 'customer'
 
     user = User(
         username=data['username'],
@@ -186,7 +189,7 @@ def role_required(*allowed_roles):
 
 
 def ensure_initial_admin_seeded():
-    """Ensure the root Administrator account exists (no default demo users)."""
+    """Seed the root Administrator only when an operator supplies its password."""
     admin_email = 'admin@assurex.com'
     admin_username = 'admin'
     existing = User.query.filter(
@@ -194,7 +197,13 @@ def ensure_initial_admin_seeded():
     ).first()
 
     if not existing:
-        pw_hash = hash_password('Admin123!')
+        initial_password = os.getenv('INITIAL_ADMIN_PASSWORD')
+        if not initial_password:
+            current_app.logger.warning(
+                'Initial admin was not created. Set INITIAL_ADMIN_PASSWORD to provision it securely.'
+            )
+            return
+        pw_hash = hash_password(initial_password)
         user = User(
             username=admin_username,
             email=admin_email,

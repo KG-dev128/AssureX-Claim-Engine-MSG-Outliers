@@ -20,6 +20,14 @@ VALID_DAMAGE_TYPES = {
     'software_glitch',
     'other',
 }
+DAMAGE_TYPE_ALIASES = {
+    'hardware_failure': 'mechanical_failure',
+    'screen_damage': 'screen_crack',
+    'battery_failure': 'battery_degradation',
+    'audio_defect': 'electrical_failure',
+    'motherboard': 'electrical_failure',
+    'water_liquid': 'water_damage',
+}
 VALID_REVIEW_ACTIONS = {'approve', 'reject', 'request_info', 'override'}
 
 
@@ -110,8 +118,13 @@ def validate_claim_payload(data: Dict[str, Any]) -> Tuple[bool, Dict[str, str]]:
         except Exception:
             errors['fault_occurrence_date'] = "Fault occurrence date format invalid. Use YYYY-MM-DD."
 
-    if data.get('damage_type') and str(data['damage_type']).lower() not in VALID_DAMAGE_TYPES:
-        errors['damage_type'] = f"Damage type must be one of: {', '.join(sorted(VALID_DAMAGE_TYPES))}"
+    if data.get('damage_type'):
+        damage_type = str(data['damage_type']).strip().lower()
+        damage_type = DAMAGE_TYPE_ALIASES.get(damage_type, damage_type)
+        if damage_type not in VALID_DAMAGE_TYPES:
+            errors['damage_type'] = f"Damage type must be one of: {', '.join(sorted(VALID_DAMAGE_TYPES))}"
+        else:
+            data['damage_type'] = damage_type
 
     return len(errors) == 0, errors
 

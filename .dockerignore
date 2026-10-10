@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+.venv
+__pycache__
+*.pyc
+*.pyo
+docs_and_dev_tools
+static/uploads/*
+!static/uploads/.gitkeep
+.pytest_cache

@@ -57,3 +57,40 @@ def update_profile():
     )
 
     return jsonify({'message': 'Profile updated successfully.', 'profile': profile.to_dict()}), 200
+
+
+@profile_bp.route('/password', methods=['PUT'])
+@jwt_required()
+def update_password():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found.'}), 404
+
+    data = request.get_json() or {}
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+
+    if not old_password or not new_password:
+        return jsonify({'error': 'Both old and new passwords are required.'}), 400
+
+    from app.extensions import bcrypt
+    if not bcrypt.check_password_hash(user.password_hash, old_password):
+        return jsonify({'error': 'Current password is incorrect.'}), 400
+
+    if len(new_password) < 8:
+        return jsonify({'error': 'New password must be at least 8 characters long.'}), 400
+
+    user.password_hash = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    db.session.commit()
+
+    log_action(
+        user_id=user_id,
+        action_type='password_changed',
+        entity_type='user',
+        entity_id=user_id,
+        ip_address=request.remote_addr,
+    )
+
+    return jsonify({'message': 'Password updated successfully.'}), 200
+

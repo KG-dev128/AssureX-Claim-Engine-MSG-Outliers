@@ -114,11 +114,14 @@ def get_product(product_id):
 
     warranties = [w.to_dict() for w in product.warranties.all()]
     repairs = [r.to_dict() for r in product.repairs.all()]
+    documents = [d.to_dict() for d in Document.query.filter_by(product_id=product_id).all()]
 
     data = product.to_dict()
     data['warranties'] = warranties
     data['repairs'] = repairs
+    data['documents'] = documents
     return jsonify({'product': data}), 200
+
 
 
 @products_bp.route('/<product_id>', methods=['PUT'])
@@ -199,11 +202,16 @@ def get_repair_history(product_id):
 
 
 @products_bp.route('/<product_id>/repairs', methods=['POST'])
-@role_required('admin', 'reviewer', 'service_employee')
+@jwt_required()
 def add_repair_record(product_id):
     product = Product.query.get(product_id)
     if not product:
         return jsonify({'error': 'Product not found.'}), 404
+
+    user_id = get_jwt_identity()
+    role = get_jwt().get('role', 'customer')
+    if role == 'customer' and product.user_id != user_id:
+        return jsonify({'error': 'Forbidden: You do not own this product.'}), 403
 
     data = request.get_json() or {}
     if not data.get('repair_date'):
@@ -229,4 +237,32 @@ def add_repair_record(product_id):
     db.session.commit()
 
     return jsonify({'message': 'Repair history record added.', 'repair': repair.to_dict()}), 201
+
+
+@products_bp.route('/<product_id>/generate-artifacts', methods=['POST'])
+@jwt_required()
+def generate_product_artifacts(product_id):
+    """
+    Admin and authorized users can generate official receipts, warranty cards,
+    and defect evidence matching the product category's policy.
+    """
+    user_id = get_jwt_identity()
+    role = get_jwt().get('role', 'customer')
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Product not found.'}), 404
+
+    if role == 'customer' and product.user_id != user_id:
+        return jsonify({'error': 'Forbidden.'}), 403
+
+    from app.services.document_artifact_generator import generate_policy_artifacts_for_product
+    options = request.get_json() or {}
+    try:
+        result = generate_policy_artifacts_for_product(product_id, admin_user_id=user_id, options=options)
+        return jsonify({
+            'message': f"Generated {result['count']} policy artifacts (Receipt, Warranty Card, Defect Evidence) for {result['product_name']}.",
+            'result': result
+        }), 201
+    except Exception as e:
+        return jsonify({'error': f"Failed to generate artifacts: {e}"}), 500
 

@@ -4,7 +4,7 @@ Authentication API endpoints (FR i).
 Handles registration, login, logout, refresh, and current user identity.
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, create_access_token, create_refresh_token
 from app.services.auth_service import register_user, login_user, logout_user
 from app.models import User
 
@@ -19,9 +19,12 @@ def register():
     if not success:
         status_code = res.get('status_code', 400)
         return jsonify(res), status_code
+    claims = {'user_id': res['user_id'], 'role': res['role'], 'username': res['username']}
     return jsonify({
         'message': 'User registered successfully.',
-        'user': res
+        'user': res,
+        'access_token': create_access_token(identity=res['user_id'], additional_claims=claims),
+        'refresh_token': create_refresh_token(identity=res['user_id'], additional_claims=claims),
     }), 201
 
 

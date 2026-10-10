@@ -19,6 +19,11 @@ def create_app(config_name=None):
     app = Flask(__name__, template_folder=templates_dir, static_folder=static_dir)
     app.config.from_object(config[config_name])
 
+    if config_name != 'testing' and app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite:'):
+        raise RuntimeError(
+            'Neon PostgreSQL is required. Set NEONDB_URL (or DATABASE_URL) before starting the app.'
+        )
+
     # Ensure upload directory exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(templates_dir, exist_ok=True)

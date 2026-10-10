@@ -1,0 +1,45 @@
+# ==============================================================================
+# AssureX Claim Engine - Python Dependencies
+# ==============================================================================
+
+# --- Core Web & REST API Framework ---
+Flask>=3.0.0,<4.0.0
+Flask-SQLAlchemy>=3.1.0,<4.0.0
+Flask-Bcrypt>=1.0.1
+Flask-JWT-Extended>=4.6.0
+flask-cors>=5.0.0
+Flask-Limiter>=3.8.0
+Werkzeug>=3.0.0
+
+# --- Database & Migrations ---
+SQLAlchemy>=2.0.0
+psycopg2-binary>=2.9.9
+alembic>=1.13.0
+
+# --- Environment & Configuration ---
+python-dotenv>=1.0.0
+
+# --- Machine Learning & Data Science ---
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.4.0
+scipy>=1.12.0
+joblib>=1.3.0
+
+# --- Document Processing & Card Generation ---
+Pillow>=10.2.0
+reportlab>=4.1.0
+
+# --- Production WSGI Server (Linux/Deployment) ---
+gunicorn>=21.2.0; sys_platform != "win32"
+
+# --- Document OCR & PDF Extraction (Optional / Recommended) ---
+# Uncomment if using EasyOCR or direct PDF rasterization:
+# easyocr>=1.7.0
+# pypdf>=4.0.0
+# pypdfium2>=4.28.0
+
+# --- Deep Learning / GTM Inference (Optional / Recommended) ---
+# Uncomment if running local TFLite / GTM inference:
+# tensorflow>=2.15.0; sys_platform != "win32"
+# xgboost>=2.0.0

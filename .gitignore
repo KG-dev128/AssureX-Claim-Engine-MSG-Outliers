@@ -1,18 +1,39 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment & local credentials
 .env
-*.pkl
-*.tflite
-assurex_env/
 .venv/
+assurex_env/
 instance/
+.pytest_cache/
+
+# SQLite databases & logs
 *.db
 *.sqlite
-uploads/
 *.log
 .DS_Store
 Thumbs.db
+
+# Machine Learning weights & artifacts (ignore root/scratch, but KEEP production model artifacts)
+*.pkl
+*.tflite
+!app/ml/models/*.pkl
+!app/ml/models/*.json
+
+# Uploads directory (keep directory via .gitkeep, ignore runtime uploads)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Build / Distribution
 dist/
 build/
 *.egg-info/
+
+# Development & documentation archive (excluded from deployment repo)
+docs_and_dev_tools/

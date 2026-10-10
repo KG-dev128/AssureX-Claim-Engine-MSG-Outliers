@@ -15,6 +15,45 @@ from app.services.auth_service import role_required
 warranties_bp = Blueprint('warranties', __name__)
 
 
+@warranties_bp.route('/', methods=['GET'])
+@jwt_required()
+def list_warranties():
+    user_id = get_jwt_identity()
+    role = get_jwt().get('role', 'customer')
+    status_filter = request.args.get('status')
+
+    query = Warranty.query.join(Product)
+    if role == 'customer':
+        query = query.filter(Product.user_id == user_id)
+
+    today = date.today()
+    warranties = query.order_by(Warranty.expiry_date.asc()).all()
+    results = []
+
+    for w in warranties:
+        w_dict = w.to_dict()
+        p = Product.query.get(w.product_id)
+        w_dict['product'] = p.to_dict() if p else None
+        
+        # Calculate derived status
+        remaining_days = (w.expiry_date - today).days
+        w_dict['remaining_days'] = remaining_days
+        if remaining_days < 0:
+            w_status = 'expired'
+        elif remaining_days <= (w.alert_days_before or 30):
+            w_status = 'nearing_expiry'
+        elif w.warranty_type == 'extended':
+            w_status = 'extended'
+        else:
+            w_status = 'active'
+        w_dict['status'] = w_status
+
+        if not status_filter or status_filter.lower() == w_status or (status_filter.lower() == 'active' and w_status in ['active', 'nearing_expiry', 'extended']):
+            results.append(w_dict)
+
+    return jsonify({'count': len(results), 'warranties': results}), 200
+
+
 @warranties_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_warranty():

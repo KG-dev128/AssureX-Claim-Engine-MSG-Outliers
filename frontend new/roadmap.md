@@ -1,3 +1,0 @@
-- [x] Build the reference-inspired CareCircle pages and shared navigation.
-- [x] Add usable inquiry, tracking demo, FAQ, and support interactions.
-- [x] Verify desktop and mobile rendering and page links.

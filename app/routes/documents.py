@@ -91,6 +91,20 @@ def upload_document():
     }), 201
 
 
+@documents_bp.route('/', methods=['GET'])
+@documents_bp.route('', methods=['GET'])
+@jwt_required()
+def list_documents():
+    user_id = get_jwt_identity()
+    role = get_jwt().get('role', 'customer')
+    if role in ['admin', 'reviewer']:
+        docs = Document.query.order_by(Document.uploaded_at.desc()).all()
+    else:
+        docs = Document.query.filter_by(user_id=user_id).order_by(Document.uploaded_at.desc()).all()
+    return jsonify({'count': len(docs), 'documents': [d.to_dict() for d in docs]}), 200
+
+
+
 @documents_bp.route('/<doc_id>', methods=['GET'])
 @jwt_required()
 def get_document(doc_id):

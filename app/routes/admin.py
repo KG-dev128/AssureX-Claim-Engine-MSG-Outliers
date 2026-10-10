@@ -142,3 +142,60 @@ def modify_policy(category):
     )
 
     return jsonify({'message': f'Policy for {category} updated.', 'policy': policy.to_dict()}), 200
+
+
+@admin_bp.route('/config/reload', methods=['POST'])
+@admin_bp.route('/policies/reload', methods=['POST'])
+@role_required('admin')
+def reload_configuration():
+    admin_id = get_jwt_identity()
+    from app.services.policy_service import seed_default_policies, list_all_policies
+    seed_default_policies()
+    policies = list_all_policies()
+
+    log_action(
+        user_id=admin_id,
+        action_type='config_reloaded',
+        entity_type='system_configuration',
+        entity_id='policies_thresholds',
+        details={'policy_count': len(policies), 'action': 'manual_admin_reload'},
+        ip_address=request.remote_addr,
+    )
+
+    return jsonify({
+        'message': 'Configuration and warranty policies reloaded successfully.',
+        'policies': policies,
+        'status': 'reloaded'
+    }), 200
+
+
+@admin_bp.route('/products/<product_id>/generate-artifacts', methods=['POST'])
+@role_required('admin')
+def admin_generate_artifacts(product_id):
+    from app.services.document_artifact_generator import generate_policy_artifacts_for_product
+    options = request.get_json() or {}
+    try:
+        result = generate_policy_artifacts_for_product(product_id, admin_user_id=get_jwt_identity(), options=options)
+        return jsonify({
+            'message': f"Generated {result['count']} policy artifacts for {result['product_name']}.",
+            'result': result
+        }), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/seed-test-data', methods=['POST'])
+@role_required('admin')
+def admin_seed_test_data():
+    """Trigger full testing dataset seeding: categorized products, artifacts, valid/invalid/manual-review claims, and CSV splits."""
+    from app.services.test_dataset_seeder import run_full_dataset_seeding
+    try:
+        stats = run_full_dataset_seeding()
+        return jsonify({
+            'message': 'Testing dataset generated and seeded successfully!',
+            'stats': stats
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+

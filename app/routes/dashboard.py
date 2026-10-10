@@ -148,3 +148,22 @@ def get_recent_activity():
         'recent_audit_trail': [a.to_dict() for a in recent_audits],
     }), 200
 
+
+@dashboard_bp.route('/notifications', methods=['GET'])
+@jwt_required()
+def get_user_notifications_route():
+    user_id = get_jwt_identity()
+    from app.services.notification_service import get_user_notifications
+    notifs = get_user_notifications(user_id, unread_only=False, limit=50)
+    return jsonify({'count': len(notifs), 'notifications': notifs}), 200
+
+
+@dashboard_bp.route('/notifications/read-all', methods=['POST'])
+@jwt_required()
+def read_all_notifications_route():
+    user_id = get_jwt_identity()
+    from app.services.notification_service import mark_all_notifications_read
+    count = mark_all_notifications_read(user_id)
+    return jsonify({'message': f'{count} notifications marked as read.', 'marked_count': count}), 200
+
+

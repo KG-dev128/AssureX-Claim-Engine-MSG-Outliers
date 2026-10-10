@@ -19,7 +19,7 @@ class Config:
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
     # Database connection logic
-    neon_url = os.getenv('NEONDB_URL', '')
+    neon_url = os.getenv('NEONDB_URL') or os.getenv('DATABASE_URL', '')
     if neon_url and 'ep-xxx.neon.tech' not in neon_url:
         if neon_url.startswith('postgresql://'):
             neon_url = neon_url.replace('postgresql://', 'postgresql+psycopg2://', 1)
@@ -31,6 +31,9 @@ class Config:
             'max_overflow': 10,
         }
     else:
+        # Tests explicitly replace this with an in-memory SQLite database.
+        # create_app rejects this fallback for normal app runs so registrations
+        # cannot silently be stored in a local database.
         SQLALCHEMY_DATABASE_URI = 'sqlite:///assurex_dev.db'
         SQLALCHEMY_ENGINE_OPTIONS = {
             'pool_pre_ping': True,

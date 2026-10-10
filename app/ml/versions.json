@@ -1,6 +1,6 @@
 [
   {
-    "version_id": "3faa78fe-e35c-43dd-acda-a8fc81e0bba5",
+    "version_id": "67fbc1f9-6213-445e-b5de-de29132ac5ad",
     "model_type": "python",
     "version_tag": "v1.0-tabular",
     "algorithm": "RandomForest",
@@ -10,7 +10,7 @@
     "is_active": true
   },
   {
-    "version_id": "b79e1cae-0931-4884-bdfa-fbb1fd2d40aa",
+    "version_id": "952c8dd4-1825-4bb7-8156-46b2ba31b4df",
     "model_type": "gtm",
     "version_tag": "v1.0-visual",
     "algorithm": "TeachableMachine-MobileNetV2",
