@@ -1,0 +1,99 @@
+{
+  "policy_name": "Washing Machine Standard Warranty - Demo v1",
+  "category": "Washing Machine",
+  "coverage_duration_months": 24,
+  "nearing_expiry_days": 45,
+  "warranty_start_conditions": [
+    "Starts on purchase date"
+  ],
+  "covered_fault_categories": [
+    "motor",
+    "drain",
+    "spin",
+    "power",
+    "display",
+    "door lock",
+    "water inlet",
+    "pump",
+    "control board"
+  ],
+  "excluded_damage": [
+    "water contamination from external source",
+    "physical impact",
+    "misuse",
+    "unauthorized modification",
+    "pest damage"
+  ],
+  "claim_reporting_period_days": 30,
+  "repair_conditions": [
+    "Installation and service should follow manufacturer requirements",
+    "Unauthorized parts require review"
+  ],
+  "authorized_service_centers": [
+    "AssureX Service Center",
+    "Manufacturer Authorized Center"
+  ],
+  "replacement_conditions": [
+    "Replacement may be considered after qualifying repeated major faults"
+  ],
+  "grace_period_days": 7,
+  "mandatory_documents": [
+    "purchase_receipt",
+    "warranty_card",
+    "product_image",
+    "serial_number_evidence",
+    "fault_evidence"
+  ],
+  "hard_fail_rules": [
+    "Warranty expired",
+    "Excluded damage confirmed",
+    "Unauthorized modification confirmed",
+    "Purchase proof missing"
+  ],
+  "warning_rules": [
+    "Warranty nearing expiry",
+    "Repair history incomplete"
+  ],
+  "manual_review_rules": [
+    "Serial mismatch",
+    "Installation issue unclear",
+    "Contradictory dates",
+    "Previous repair center cannot be verified",
+    "Duplicate document indicator"
+  ],
+  "product_category": "Washing Machine",
+  "coverage_duration": {
+    "months": 24
+  },
+  "start_conditions": [
+    "Starts on purchase date"
+  ],
+  "covered_faults": [
+    "motor",
+    "drain",
+    "spin",
+    "power",
+    "display",
+    "door lock",
+    "water inlet",
+    "pump",
+    "control board"
+  ],
+  "exclusions": [
+    "water contamination from external source",
+    "physical impact",
+    "misuse",
+    "unauthorized modification",
+    "pest damage"
+  ],
+  "reporting_period": {
+    "days": 30
+  },
+  "authorized_service_center": [
+    "AssureX Service Center",
+    "Manufacturer Authorized Center"
+  ],
+  "grace_period": {
+    "days": 7
+  }
+}

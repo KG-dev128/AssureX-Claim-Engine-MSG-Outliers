@@ -1,0 +1,109 @@
+{
+  "policy_name": "Laptop Standard Warranty - Demo v1",
+  "category": "Laptop",
+  "coverage_duration_months": 24,
+  "nearing_expiry_days": 30,
+  "warranty_start_conditions": [
+    "Starts on purchase date"
+  ],
+  "covered_fault_categories": [
+    "screen",
+    "display",
+    "keyboard",
+    "battery",
+    "motherboard",
+    "charging",
+    "power",
+    "storage",
+    "touchpad",
+    "audio",
+    "camera"
+  ],
+  "excluded_damage": [
+    "water damage",
+    "liquid damage",
+    "hammer",
+    "physical abuse",
+    "cracked by impact",
+    "unauthorized modification"
+  ],
+  "claim_reporting_period_days": 30,
+  "repair_conditions": [
+    "Repair should be documented",
+    "Unauthorized parts or modification require manual review"
+  ],
+  "authorized_service_centers": [
+    "AssureX Service Center",
+    "Lenovo Authorized Service Center",
+    "Manufacturer Authorized Center"
+  ],
+  "replacement_conditions": [
+    "Replacement may be considered for qualifying repeated major faults"
+  ],
+  "grace_period_days": 7,
+  "mandatory_documents": [
+    "purchase_receipt",
+    "warranty_card",
+    "product_image",
+    "serial_number_evidence",
+    "fault_evidence"
+  ],
+  "hard_fail_rules": [
+    "Warranty expired",
+    "Excluded damage confirmed",
+    "Unauthorized modification confirmed",
+    "Purchase proof missing"
+  ],
+  "warning_rules": [
+    "Warranty nearing expiry",
+    "Late reporting",
+    "Incomplete evidence"
+  ],
+  "manual_review_rules": [
+    "Serial mismatch",
+    "Model mismatch",
+    "Fault date before purchase",
+    "Fault date after claim submission",
+    "Repair center cannot be verified",
+    "Duplicate document indicator"
+  ],
+  "product_category": "Laptop",
+  "coverage_duration": {
+    "months": 24
+  },
+  "start_conditions": [
+    "Starts on purchase date"
+  ],
+  "covered_faults": [
+    "screen",
+    "display",
+    "keyboard",
+    "battery",
+    "motherboard",
+    "charging",
+    "power",
+    "storage",
+    "touchpad",
+    "audio",
+    "camera"
+  ],
+  "exclusions": [
+    "water damage",
+    "liquid damage",
+    "hammer",
+    "physical abuse",
+    "cracked by impact",
+    "unauthorized modification"
+  ],
+  "reporting_period": {
+    "days": 30
+  },
+  "authorized_service_center": [
+    "AssureX Service Center",
+    "Lenovo Authorized Service Center",
+    "Manufacturer Authorized Center"
+  ],
+  "grace_period": {
+    "days": 7
+  }
+}

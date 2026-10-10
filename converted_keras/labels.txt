@@ -1,0 +1,3 @@
+0 Valid Claim
+1 InValid Claim
+2 Mannual

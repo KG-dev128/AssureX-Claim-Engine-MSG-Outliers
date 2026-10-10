@@ -1,0 +1,402 @@
+[
+  {
+    "pair_id": 1,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair01_MATCH_receipt.png",
+    "warranty_file": "pair01_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 2,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair02_MATCH_receipt.png",
+    "warranty_file": "pair02_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 3,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair03_MATCH_receipt.png",
+    "warranty_file": "pair03_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 4,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair04_MATCH_receipt.png",
+    "warranty_file": "pair04_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 5,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair05_MATCH_receipt.png",
+    "warranty_file": "pair05_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 6,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair06_MATCH_receipt.png",
+    "warranty_file": "pair06_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 7,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair07_MATCH_receipt.png",
+    "warranty_file": "pair07_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 8,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair08_MATCH_receipt.png",
+    "warranty_file": "pair08_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 9,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair09_MATCH_receipt.png",
+    "warranty_file": "pair09_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 10,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair10_MATCH_receipt.png",
+    "warranty_file": "pair10_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 11,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair11_MATCH_receipt.png",
+    "warranty_file": "pair11_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 12,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair12_MATCH_receipt.png",
+    "warranty_file": "pair12_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 13,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair13_MATCH_receipt.png",
+    "warranty_file": "pair13_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 14,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair14_MATCH_receipt.png",
+    "warranty_file": "pair14_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 15,
+    "label": "VALID",
+    "category": "identical_match",
+    "receipt_file": "pair15_MATCH_receipt.png",
+    "warranty_file": "pair15_MATCH_warranty.png",
+    "notes": "All fields (serial, date, invoice, item, store) identical across receipt and warranty card."
+  },
+  {
+    "pair_id": 16,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair16_PARTIAL_receipt.png",
+    "warranty_file": "pair16_PARTIAL_warranty.png",
+    "notes": "[typo_serial_last_char] Serial number differs by one trailing character (OCR/typo-style mismatch)."
+  },
+  {
+    "pair_id": 17,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair17_PARTIAL_receipt.png",
+    "warranty_file": "pair17_PARTIAL_warranty.png",
+    "notes": "[store_name_abbreviation] Warranty card shows abbreviated store name vs. full name on receipt."
+  },
+  {
+    "pair_id": 18,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair18_PARTIAL_receipt.png",
+    "warranty_file": "pair18_PARTIAL_warranty.png",
+    "notes": "[date_off_by_one_day] Purchase date on warranty card is one day later than receipt (data entry lag)."
+  },
+  {
+    "pair_id": 19,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair19_PARTIAL_receipt.png",
+    "warranty_file": "pair19_PARTIAL_warranty.png",
+    "notes": "[owner_name_missing_on_receipt_field] Warranty card owner field annotated differently; receipt has no owner field at all."
+  },
+  {
+    "pair_id": 20,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair20_PARTIAL_receipt.png",
+    "warranty_file": "pair20_PARTIAL_warranty.png",
+    "notes": "[invoice_ref_reformatted] Invoice reference reformatted on warranty card (shorthand notation)."
+  },
+  {
+    "pair_id": 21,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair21_PARTIAL_receipt.png",
+    "warranty_file": "pair21_PARTIAL_warranty.png",
+    "notes": "[amount_rounding_difference] Category field phrased more broadly on warranty card; core identifiers still match."
+  },
+  {
+    "pair_id": 22,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair22_PARTIAL_receipt.png",
+    "warranty_file": "pair22_PARTIAL_warranty.png",
+    "notes": "[item_name_shortform] Product name shortened on warranty card vs. full name on receipt."
+  },
+  {
+    "pair_id": 23,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair23_PARTIAL_receipt.png",
+    "warranty_file": "pair23_PARTIAL_warranty.png",
+    "notes": "[warranty_period_stated_differently] Warranty duration expressed in months on card vs. days basis used elsewhere."
+  },
+  {
+    "pair_id": 24,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair24_PARTIAL_receipt.png",
+    "warranty_file": "pair24_PARTIAL_warranty.png",
+    "notes": "[typo_serial_middle_digit] Serial number differs by one middle digit (OCR/typo-style mismatch)."
+  },
+  {
+    "pair_id": 25,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair25_PARTIAL_receipt.png",
+    "warranty_file": "pair25_PARTIAL_warranty.png",
+    "notes": "[store_branch_added] Warranty card lists a specific branch suffix not present on the receipt's store name."
+  },
+  {
+    "pair_id": 26,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair26_PARTIAL_receipt.png",
+    "warranty_file": "pair26_PARTIAL_warranty.png",
+    "notes": "[date_off_by_one_day_earlier] Purchase date on warranty card is one day earlier than receipt (registration lag)."
+  },
+  {
+    "pair_id": 27,
+    "label": "REVIEW",
+    "category": "partial_match",
+    "receipt_file": "pair27_PARTIAL_receipt.png",
+    "warranty_file": "pair27_PARTIAL_warranty.png",
+    "notes": "[invoice_ref_extra_suffix] Warranty card invoice reference has an extra suffix vs. the receipt's plain invoice number."
+  },
+  {
+    "pair_id": 28,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair28_FRAUD_receipt.png",
+    "warranty_file": "pair28_FRAUD_warranty.png",
+    "notes": "[serial_number_swapped] Serial number on warranty card belongs to a completely different unit than the receipt."
+  },
+  {
+    "pair_id": 29,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair29_FRAUD_receipt.png",
+    "warranty_file": "pair29_FRAUD_warranty.png",
+    "notes": "[warranty_expired_before_claim] Warranty expired long before claim filing date (2026-09-25) \u2014 hard-fail expired-warranty case."
+  },
+  {
+    "pair_id": 30,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair30_FRAUD_receipt.png",
+    "warranty_file": "pair30_FRAUD_warranty.png",
+    "notes": "[fault_date_before_purchase] Purchase date is AFTER the claimed fault date of 2026-08-28 \u2014 chronological contradiction fraud pattern."
+  },
+  {
+    "pair_id": 31,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair31_FRAUD_receipt.png",
+    "warranty_file": "pair31_FRAUD_warranty.png",
+    "notes": "[amount_altered_visual_tamper] Amount paid appears visually altered/boxed on receipt \u2014 inflated value inconsistent with item tier."
+  },
+  {
+    "pair_id": 32,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair32_FRAUD_receipt.png",
+    "warranty_file": "pair32_FRAUD_warranty.png",
+    "notes": "[store_name_completely_different] Warranty card issued by a different retailer entirely than the one on the receipt."
+  },
+  {
+    "pair_id": 33,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair33_FRAUD_receipt.png",
+    "warranty_file": "pair33_FRAUD_warranty.png",
+    "notes": "[duplicate_receipt_reused_serial] Serial + invoice number identical to a previously 'submitted' claim in the set (duplicate-hash fraud simulation \u2014 compare to any other FRAUD pair using the same reused serial)."
+  },
+  {
+    "pair_id": 34,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair34_FRAUD_receipt.png",
+    "warranty_file": "pair34_FRAUD_warranty.png",
+    "notes": "[item_category_mismatch] Warranty card registered for an entirely different product category than the receipted item."
+  },
+  {
+    "pair_id": 35,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair35_FRAUD_receipt.png",
+    "warranty_file": "pair35_FRAUD_warranty.png",
+    "notes": "[owner_name_swapped] Registered owner on warranty card does not match the name associated with this receipt/claim."
+  },
+  {
+    "pair_id": 36,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair36_FRAUD_receipt.png",
+    "warranty_file": "pair36_FRAUD_warranty.png",
+    "notes": "[invoice_number_swapped] Invoice reference on warranty card is an unrelated invoice number, not a variant of the receipt's."
+  },
+  {
+    "pair_id": 37,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair37_FRAUD_receipt.png",
+    "warranty_file": "pair37_FRAUD_warranty.png",
+    "notes": "[amount_altered_deflated] Amount paid appears visually altered/boxed on receipt \u2014 suspiciously deflated value inconsistent with item tier."
+  },
+  {
+    "pair_id": 38,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair38_FRAUD_receipt.png",
+    "warranty_file": "pair38_FRAUD_warranty.png",
+    "notes": "[duplicate_receipt_reused_serial_2] Serial + invoice number identical to a previously 'submitted' claim (second instance of the same reused document-hash fraud pattern)."
+  },
+  {
+    "pair_id": 39,
+    "label": "FRAUD",
+    "category": "fraud",
+    "receipt_file": "pair39_FRAUD_receipt.png",
+    "warranty_file": "pair39_FRAUD_warranty.png",
+    "notes": "[warranty_predates_receipt] Warranty card purchase date is before the receipt's purchase date \u2014 impossible registration sequence."
+  },
+  {
+    "pair_id": 40,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair40_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair40_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:torn_corner_partial / warranty:torn_corner_partial] Both documents have a torn corner; most fields still legible but corner data (partially) lost. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 41,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair41_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair41_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:water_stain_partial / warranty:torn_corner_partial] Receipt has a water stain over part of the text; warranty card has a torn corner \u2014 both partially damaged. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 42,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair42_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair42_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:faded_text_partial / warranty:water_stain_partial] Receipt has faded/sun-bleached text over a field; warranty card has a water stain \u2014 legibility reduced on both. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 43,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair43_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair43_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:scratched_field / warranty:scratched_field] A field is scratched out / redacted on both receipt and warranty card, obscuring part of the matching data. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 44,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair44_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair44_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:heavy_multi_damage / warranty:torn_corner_partial] Receipt is heavily damaged (tear + stain + fade); warranty card has a lighter torn-corner defect. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 45,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair45_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair45_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:torn_corner_partial / warranty:heavy_multi_damage] Warranty card is heavily damaged (tear + stain + fade); receipt has a lighter torn-corner defect. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 46,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair46_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair46_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:water_stain_partial / warranty:water_stain_partial] Both documents show water/coffee staining over portions of the printed fields. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 47,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair47_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair47_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:faded_text_partial / warranty:faded_text_partial] Both documents show significant fading/bleaching over portions of the printed fields. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 48,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair48_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair48_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:scratched_field / warranty:torn_corner_partial] Receipt has a scratched-out/redacted field; warranty card has a torn corner \u2014 combined partial illegibility. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 49,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair49_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair49_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:heavy_multi_damage / warranty:heavy_multi_damage] Both documents are heavily damaged (multiple combined defects) \u2014 severely reduced OCR confidence. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  },
+  {
+    "pair_id": 50,
+    "label": "MANUAL_REVIEW_DAMAGE",
+    "category": "manual_review_damage",
+    "receipt_file": "pair50_REVIEW_DAMAGE_receipt.png",
+    "warranty_file": "pair50_REVIEW_DAMAGE_warranty.png",
+    "notes": "[receipt:torn_corner_partial / warranty:water_stain_partial] Receipt has a torn corner; warranty card has a water stain \u2014 underlying data matches but both are partially damaged. Field data itself matches; routed to manual review due to physical document damage / low OCR confidence, not a fraud or mismatch signal."
+  }
+]

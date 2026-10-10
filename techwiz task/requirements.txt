@@ -1,0 +1,19 @@
+Flask>=3.0,<4
+numpy>=1.26,<3
+pandas>=2.2,<3
+scikit-learn==1.8.0
+joblib>=1.3
+Pillow>=10
+scikit-image>=0.22
+easyocr>=1.7,<2
+pytesseract>=0.3.10
+pdf2image>=1.16
+reportlab>=4
+pytest>=8
+python-dotenv>=1.0,<2
+psycopg2-binary>=2.9,<3
+# Optional independent model runtime, after confirming labels.txt:
+# tensorflow>=2.13
+# Optional OCR alternative:
+# paddleocr>=3
+# paddlepaddle>=3
